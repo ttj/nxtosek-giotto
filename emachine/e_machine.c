@@ -78,7 +78,7 @@ TASK(e_machine_and_drivers)
 #elif defined(PTHREADS)
 void e_machine(int trigger_number)
 #elif defined(NXTOSEK)
-//todo
+TASK(e_machine_and_drivers_nxt)
 #endif
 {
 #ifdef OSEK
@@ -115,22 +115,24 @@ void e_machine(int trigger_number)
     while ((pc == -1) && (i < n_enabled_triggers)) {
       if (e_schedule[i].trigger->is_active(e_schedule[i].state, e_schedule[i].parameter)) {
 
-	pc = e_schedule[i].address;
+		pc = e_schedule[i].address;
 
-	for(j = i; j < n_enabled_triggers-1; j++) {
-	  e_schedule[j].trigger = e_schedule[j+1].trigger;
-	  e_schedule[j].address = e_schedule[j+1].address;
-	  e_schedule[j].state = e_schedule[j+1].state;
-	  e_schedule[j].parameter = e_schedule[j+1].parameter;
-	}
+		for(j = i; j < n_enabled_triggers-1; j++) {
+			e_schedule[j].trigger = e_schedule[j+1].trigger;
+			e_schedule[j].address = e_schedule[j+1].address;
+			e_schedule[j].state = e_schedule[j+1].state;
+			e_schedule[j].parameter = e_schedule[j+1].parameter;
+		}
 
-	n_enabled_triggers--;
-      } else
-	i++;
+		n_enabled_triggers--;
+      } else {
+		i++;
+      }
     }
 
-    if (pc == -1)
+    if (pc == -1) {
       break;
+	}
 
     while (pc != -1) {
       arg1 = program[pc].arg1;
@@ -138,55 +140,56 @@ void e_machine(int trigger_number)
       arg3 = program[pc].arg3;
 
       switch(program[pc].opcode) {
-      case OPCODE_nop:          /* nop() */
-	pc++;
+		case OPCODE_nop:          /* nop() */
+			pc++;
+			break;
 
-	break;
-      case OPCODE_future:       /* future(Trigger,Address,Parameter) */
-	j = n_enabled_triggers;
+		case OPCODE_future:       /* future(Trigger,Address,Parameter) */
+			j = n_enabled_triggers;
 
-	e_schedule[j].trigger = &(trigger_table[arg1]);
-	e_schedule[j].address = arg2;
-	e_schedule[j].state = e_schedule[j].trigger->save();
-	e_schedule[j].parameter = arg3;
+			e_schedule[j].trigger = &(trigger_table[arg1]);
+			e_schedule[j].address = arg2;
+			e_schedule[j].state = e_schedule[j].trigger->save();
+			e_schedule[j].parameter = arg3;
 
 #ifdef OSEK
-	e_schedule[j].trigger->enable(e_machine_and_drivers, arg3);
+			e_schedule[j].trigger->enable(e_machine_and_drivers, arg3);
 #elif defined(PTHREADS)
-	e_schedule[j].trigger->enable(e_machine, arg3);
+			e_schedule[j].trigger->enable(e_machine, arg3);
 #elif defined(NXTOSEK)
-	//todo: add to schedule table
+			e_schedule[j].trigger->enable(e_machine_and_drivers_nxt, arg3);
 #endif
 
-	n_enabled_triggers++;
+			n_enabled_triggers++;
 
-	pc++;
+			pc++;
 
-	break;
-      case OPCODE_call:         /* call(Driver) */
-	if (driver_table[arg1].protected & ready) {
-	  sprintf(text_message, "call(%d) exception (deadline violation)", arg1);
+			break;
 
-	  os_print_warning(text_message);
-	} else {
+		case OPCODE_call:         /* call(Driver) */
+			if (driver_table[arg1].protected & ready) {
+			  sprintf(text_message, "call(%d) exception (deadline violation)", arg1);
+
+			  os_print_warning(text_message);
+			} else {
 #ifdef OSEK
-	  getTickCountLow(&current_system_time);
+		  getTickCountLow(&current_system_time);
 
-	  e_execution_time = e_execution_time + current_system_time - last_system_time;
+		  e_execution_time = e_execution_time + current_system_time - last_system_time;
 #endif
 
-	  driver_table[arg1].call();
+		  driver_table[arg1].call();
 
 #ifdef OSEK
-	  getTickCountLow(&last_system_time);
+		  getTickCountLow(&last_system_time);
 
-	  d_execution_time = d_execution_time + last_system_time - current_system_time;
+		  d_execution_time = d_execution_time + last_system_time - current_system_time;
 #endif
-	}
+			}
 
-	pc++;
+			pc++;
 
-	break;
+			break;
       case OPCODE_schedule:     /* schedule(Task,Annotation,Parameter) */
 	mask = 1 << arg1;
 
@@ -308,7 +311,7 @@ TASK(e_machine_init)
 #elif defined(PTHREADS)
 main(int argc, char *argv[])
 #elif defined(NXTOSEK)
-//todo
+TASK(e_machine_init_nxt)
 #endif
 {
   host_id_type host_id;
@@ -345,6 +348,11 @@ main(int argc, char *argv[])
     id = 0;
 #elif defined(NXTOSEK)
 //todo
+  id = 0;
+
+  average_e_execution_time = 0.0;
+  average_d_execution_time = 0.0;
+  average_s_execution_time = 0.0;
 #endif
 
   host_id = id;
@@ -368,7 +376,7 @@ main(int argc, char *argv[])
 #elif defined(PTHREADS)
   e_schedule[0].trigger->enable(e_machine, 0);
 #elif defined(NXTOSEK)
-//todo
+	e_schedule[0].trigger->enable(e_machine_and_drivers_nxt, 0);
 #endif
 
   e_schedule[0].state = e_schedule[0].trigger->save();
@@ -403,6 +411,8 @@ main(int argc, char *argv[])
 
   exit(0);
 #elif defined(NXTOSEK)
-//todo
+	TerminateTask();
+
+	os_print_error("e_machine_init_nxt: TerminateTask error");
 #endif
 }
