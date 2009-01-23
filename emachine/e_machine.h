@@ -76,21 +76,9 @@ extern condition_type condition_table[MAXCONDITION];   /* f_table.c */
 
 extern annotation_type annotation_table[MAXCONDITION]; /* s_table.c */
 
-extern instruction_type program[MAXPROGRAM];           /* e_code.c */ 
+extern instruction_type program[MAXPROGRAM];           /* e_code.c */
 
 extern host_type host_table[MAXHOST];                  /* h_table.c */
 extern network_type network_table[MAXNETWORK];         /* n_table.c */
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-

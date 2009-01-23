@@ -60,5 +60,3 @@ typedef struct {
 #define RETURN()                               {OPCODE_return,    -1,        -1,           -1}
 
 #endif
-
-
