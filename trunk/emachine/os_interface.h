@@ -50,6 +50,8 @@
 #include <fcntl.h>
 #elif defined(NXTOSEK)
 //todo
+#include "kernel.h"
+#include "kernel_id.h"
 #endif
 
 #ifndef __MINGW32__
