@@ -1,0 +1,19 @@
+This is the README file for giottoc.
+
+giottoc is a Java implementation of a compiler for the embedded
+programming language Giotto and a distributed target machine called
+the embedded machine written in C.  Giotto is being developed at the
+Electrical Engineering and Computer Sciences Department of the
+University of California at Berkeley.  For more information see:
+
+http://www.eecs.berkeley.edu/~fresco/giotto
+
+giottoc 0.3 is intended as a preliminary version of the Giotto
+compiler and the embedded machine.  The Giotto syntax can be found in
+the 'giottoc.grammar' file.  This release includes a Giotto example
+program 'control.giotto', which contains all key features of the
+programming language Giotto.  The file is located in the 'examples'
+subdirectory of the distribution.  For installation instructions
+please refer to the INSTALL file, which also provides information on
+how to run giottoc on Windows as well as the distributed version of
+the target machine on Linux.
