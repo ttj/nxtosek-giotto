@@ -32,7 +32,7 @@
 
 #include "e_interface.h"
 
-#ifndef OSEK
+#ifdef PTHREADS
 e_timer_type timer;                                     /* e machine periodic timer */
 
 os_thread_type timer_thread;                            /* e machine timer thread */
@@ -99,7 +99,7 @@ void e_interface_init() {
     os_print_error("e_interface_init: SetRelAlarm error");
 }
 
-#else /* OSEK */
+#elif defined(PTHREADS) /* OSEK */
 
 /* -------------------------------------------------------------------
  *
@@ -152,7 +152,7 @@ void timer_code(void *args) {
 
     os_semaphore_post(&(timer_timer->protect_logical_time));
 
-    timer_logical_time = (timer_logical_time + MSEC_PER_UNIT) % logical_time_overflow; 
+    timer_logical_time = (timer_logical_time + MSEC_PER_UNIT) % logical_time_overflow;
 
     os_semaphore_post(&(timer_timer->protect_logical_time));
   }
@@ -164,7 +164,7 @@ void set_logical_time() {
   // Non-blocking write protocol for timer_logical_time
 
   os_semaphore_getvalue(&(timer.protect_logical_time),
-			&first_protect_logical_time_value);  
+			&first_protect_logical_time_value);
 
   unprotected_logical_time = timer_logical_time;
 
@@ -173,7 +173,7 @@ void set_logical_time() {
   //  dummy = (dummy * dummy) % 100;
 
   os_semaphore_getvalue(&(timer.protect_logical_time),
-			&second_protect_logical_time_value);  
+			&second_protect_logical_time_value);
 
   if (first_protect_logical_time_value == second_protect_logical_time_value)
     global_logical_time = unprotected_logical_time;
@@ -219,7 +219,11 @@ void e_interface_init() {
 #endif
 }
 
-#endif /* ifdef OSEK else */
+#elif defined(NXTOSEK)
+
+//todo
+
+#endif /* ifdef OSEK elif PTHREADS elif NXTOSEK */
 
 #ifdef DYNAMIC
 
@@ -286,7 +290,7 @@ int find_mode(unsigned n_mode, char *mode_name) {
   unsigned i;
 
   for(i=0;i<n_mode;i++)
-    if(strcomp(mode_name, symbol_table[i].mode_name)) 
+    if(strcomp(mode_name, symbol_table[i].mode_name))
       return i;
   return -1;
 }
@@ -306,7 +310,7 @@ void loader_code(void *args) {
 
     fd=open("loaderpipe", O_RDONLY);
 
-    read(fd, &j, sizeof(int));  /* j = number of entries in the symbol table of the new mode */ 
+    read(fd, &j, sizeof(int));  /* j = number of entries in the symbol table of the new mode */
 
     sprintf(text_message, "Received: %d symbols", j);
     os_print_message(text_message);
@@ -330,7 +334,7 @@ void loader_code(void *args) {
     os_print_message(text_message);
 
     if(newmpu < mpu) mpu = newmpu;
-	  
+
     for(i=0;i<l;i++) {
       read(fd, &program[offset+i].opcode, sizeof(int));
       read(fd, &program[offset+i].arg1, sizeof(int));
@@ -348,15 +352,15 @@ void loader_code(void *args) {
 	  /* new mode is already uploaded (isn't new) */
 	  sprintf(text_message, "duplicate e-code for mode %s", aux_table[i].mode_name);
 	  os_print_message(text_message);
-	  
+
 	  single = 0;
-	}      
+	}
       }
     }
 
     if(!single) continue;  /* -> wait for new uploading without changing offset and n_mode */
 
-    for(i=0;i<k;i++) { 
+    for(i=0;i<k;i++) {
       if((mode_index = find_mode(n_mode, aux_table[i].mode_name)) == -1) {
 	/* new mode is not referenced in previously uploaded modes */
 	mode_index = n_mode++;
@@ -370,14 +374,14 @@ void loader_code(void *args) {
       symbol_table[mode_index].fix_up = offset + aux_table[i].fix_up;
     }
 
-    inc_address(offset, l);  /* increment adresses for future, if and jump instructions in the new mode */ 
+    inc_address(offset, l);  /* increment adresses for future, if and jump instructions in the new mode */
 
     for(i=k;i<j;i++) {
       if((mode_index = find_mode(n_mode, aux_table[i].mode_name)) == -1) {
 	/* mode referenced in a new mode is neither referenced in previous modes nor is uploaded */
 	mode_index = n_mode++;
 	strcopy(symbol_table[mode_index].mode_name, aux_table[i].mode_name);
-	symbol_table[mode_index].fix_up = -offset + aux_table[i].fix_up;        
+	symbol_table[mode_index].fix_up = -offset + aux_table[i].fix_up;
       }
       else {
 	/* mode referenced in a new mode is already referenced or uploaded */
@@ -385,12 +389,12 @@ void loader_code(void *args) {
 	if(value < 0) {
 	  /* mode referenced in a new mode is already referenced (it's not uploaded) */
 	  connect_fix_up(-offset + aux_table[i].fix_up, symbol_table[mode_index].fix_up);
-	  symbol_table[mode_index].fix_up = -offset + aux_table[i].fix_up;        
+	  symbol_table[mode_index].fix_up = -offset + aux_table[i].fix_up;
 	}
 	else
 	  /* mode referenced in a new mode is already uploaded */
 	  fix_up(-offset + aux_table[i].fix_up, value);
-      }      
+      }
     }
     offset += l;  /* increment pointer to free e_code space */
 

@@ -41,13 +41,15 @@
 #ifdef OSEK
 #include "oil.h"
 #include "bsp.h"
-#else
+#elif defined(PTHREADS)
 #include <pthread.h>
 #include <sched.h>
 #include <semaphore.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#elif defined(NXTOSEK)
+//todo
 #endif
 
 #ifndef __MINGW32__
@@ -60,7 +62,7 @@ void os_print_message(char *message);
 void os_print_warning(char *message);
 void os_print_error(char *message);
 
-#ifndef OSEK
+#ifdef PTHREADS
 typedef struct timespec os_time_type;
 
 void os_nanosleep(const os_time_type *req, os_time_type *rem);
@@ -144,13 +146,13 @@ void os_thread_set_priority(os_thread_type *thread, unsigned priority);
  *
  * Function os_pipe_create: create a pipe. permissions are set to 0777.
  *
- * Arguments: 
+ * Arguments:
  * pipe_name
  *
  * ---------------------------------------------------------------- */
 
 void os_pipe_create(char *pipe_name);
 
-#endif /* ifndef OSEK */
+#endif /* ifdef PTHREADS */
 
 #endif

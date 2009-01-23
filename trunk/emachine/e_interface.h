@@ -45,7 +45,7 @@ extern char text_message[];
 
 #include "e_code.h"
 
-#ifndef OSEK
+#ifdef PTHREADS
 typedef struct {
   unsigned timer_sec, timer_nsec;
 
@@ -68,18 +68,6 @@ void e_interface_init(host_id_type host_id);
 void e_interface_init();
 #endif
 
-extern instruction_type program[MAXPROGRAM]; /* e_code.c */ 
+extern instruction_type program[MAXPROGRAM]; /* e_code.c */
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
-

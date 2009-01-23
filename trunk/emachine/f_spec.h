@@ -71,8 +71,10 @@ typedef struct {
 
 #ifdef OSEK
 typedef int task_code_type;
-#else
+#elif defined(PTHREADS)
 typedef void (*task_code_type) (void);
+#elif defined(NXTOSEK)
+//todo
 #endif
 
 typedef struct {
@@ -88,8 +90,10 @@ typedef struct {
 
 #ifdef OSEK
 typedef int e_machine_type;
-#else
+#elif defined(PTHREADS)
 typedef void (*e_machine_type) (int /* trigger_type */);
+#elif defined(NXTOSEK)
+//todo
 #endif
 
 typedef void (*enable_code_type) (e_machine_type, int);

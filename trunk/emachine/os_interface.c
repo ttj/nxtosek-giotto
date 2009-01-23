@@ -62,7 +62,7 @@ unsigned os_key_event() {
   if (hstdin == 0)
     if ((hstdin = GetStdHandle(STD_INPUT_HANDLE)) == INVALID_HANDLE_VALUE)
       os_print_error("os_key_event: GetStdHandle failed");
-  
+
   if (PeekConsoleInput(hstdin, &peek, 1, &peekRecordsRead) == 0)
     os_print_error("os_key_event: PeekConsoleInput failed");
 
@@ -73,15 +73,14 @@ unsigned os_key_event() {
     return peekRecordsRead;
   else
     return 0;
-#else
-#ifdef OSEK
+#elif defined(OSEK)
   int n_unread_chars;
   char buffer;
 
   n_unread_chars = SerialRead(CHAN1, &buffer, 1);
 
   return n_unread_chars != 1;
-#else
+#elif defined(PTHREADS)
   unsigned size = 0;
   char buffer;
 
@@ -92,6 +91,7 @@ unsigned os_key_event() {
     read(0, &buffer, 1);
 
   return size;
+#elif defined(NXTOSEK)
 #endif
 #endif
 }
@@ -101,10 +101,12 @@ void os_print_message(char *message) {
   SerialSend(CHAN1, message, strlen(message));
 
   SerialSend(CHAN1, "\r\n", 1);
-#else
+#elif defined(PTHREADS)
   fprintf(stdout, "%s\n", message);
 
   fflush(stdout);
+#elif defined(NXTOSEK)
+//todo
 #endif
 }
 
@@ -113,10 +115,12 @@ void os_print_warning(char *message) {
   SerialSend(CHAN1, message, strlen(message));
 
   SerialSend(CHAN1, "\r\n", 1);
-#else
+#elif defined(PTHREADS)
   fprintf(stderr, "%s\n", message);
 
   fflush(stderr);
+#elif defined(NXTOSEK)
+//todo
 #endif
 }
 
@@ -127,12 +131,14 @@ void os_print_error(char *message) {
   SerialSend(CHAN1, "\r\n", 1);
 
   ShutdownOS(0);
-#else
+#elif defined(PTHREADS)
   fprintf(stderr, "%s, errno: %d: %s\n", message, errno, strerror(errno));
 
   fflush(stderr);
 
   exit(1);
+#elif defined(NXTOSEK)
+//todo
 #endif
 }
 
@@ -145,7 +151,7 @@ void StartupHook() {
   RtcInit(1000, SYSTEM_COUNTER);
 }
 
-#else
+#elif defined(PTHREADS)
 
 void os_nanosleep(const os_time_type *req, os_time_type *rem) {
   //printf("Wait: req: %d,%ld; rem: %d,%ld\n", req->tv_sec, req->tv_nsec, rem->tv_sec, rem->tv_nsec);
@@ -255,6 +261,10 @@ void os_pipe_create(char *pipe_name) {
     os_print_error("os_pipe_create: create pipe error");
 }
 #endif
+
+#elif defined(NXTOSEK)
+
+//todo
 
 #endif /* ifdef OSEK else */
 

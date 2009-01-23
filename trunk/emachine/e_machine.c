@@ -42,7 +42,7 @@ int arg1, arg2, arg3;
 int pc;
 
 unsigned mask;     /* Auxiliary mask */
-unsigned ready;    /* tasks that are in the ready queue */ 
+unsigned ready;    /* tasks that are in the ready queue */
 unsigned schedule; /* tasks to be scheduled */
 
 unsigned i, j;
@@ -75,8 +75,10 @@ unsigned int e_execution_time,
 
 #ifdef OSEK
 TASK(e_machine_and_drivers)
-#else
+#elif defined(PTHREADS)
 void e_machine(int trigger_number)
+#elif defined(NXTOSEK)
+//todo
 #endif
 {
 #ifdef OSEK
@@ -150,8 +152,10 @@ void e_machine(int trigger_number)
 
 #ifdef OSEK
 	e_schedule[j].trigger->enable(e_machine_and_drivers, arg3);
-#else
+#elif defined(PTHREADS)
 	e_schedule[j].trigger->enable(e_machine, arg3);
+#elif defined(NXTOSEK)
+	//todo: add to schedule table
 #endif
 
 	n_enabled_triggers++;
@@ -180,7 +184,7 @@ void e_machine(int trigger_number)
 #endif
 	}
 
-	pc++;	      
+	pc++;
 
 	break;
       case OPCODE_schedule:     /* schedule(Task,Annotation,Parameter) */
@@ -275,9 +279,9 @@ void e_machine(int trigger_number)
     // Measure only if some drivers were called
     average_e_execution_time = 0.99*average_e_execution_time
       + 0.01*((double)e_execution_time);
-    average_d_execution_time = 0.99*average_d_execution_time 
+    average_d_execution_time = 0.99*average_d_execution_time
       + 0.01*((double)d_execution_time);
-    average_s_execution_time = 0.99*average_s_execution_time 
+    average_s_execution_time = 0.99*average_s_execution_time
       + 0.01*((double)s_execution_time);
   }
 
@@ -301,8 +305,10 @@ void e_machine(int trigger_number)
 
 #ifdef OSEK
 TASK(e_machine_init)
-#else
+#elif defined(PTHREADS)
 main(int argc, char *argv[])
+#elif defined(NXTOSEK)
+//todo
 #endif
 {
   host_id_type host_id;
@@ -318,7 +324,7 @@ main(int argc, char *argv[])
   average_e_execution_time = 0.0;
   average_d_execution_time = 0.0;
   average_s_execution_time = 0.0;
-#else
+#elif defined(PTHREADS)
   if (argc > 2)
     os_print_error("Usage: e_machine [host_id]");
   else if (argc == 2) {
@@ -337,6 +343,8 @@ main(int argc, char *argv[])
     }
   } else
     id = 0;
+#elif defined(NXTOSEK)
+//todo
 #endif
 
   host_id = id;
@@ -357,8 +365,10 @@ main(int argc, char *argv[])
 
 #ifdef OSEK
   e_schedule[0].trigger->enable(e_machine_and_drivers, 0);
-#else
+#elif defined(PTHREADS)
   e_schedule[0].trigger->enable(e_machine, 0);
+#elif defined(NXTOSEK)
+//todo
 #endif
 
   e_schedule[0].state = e_schedule[0].trigger->save();
@@ -373,7 +383,7 @@ main(int argc, char *argv[])
     e_interface_init(host_id);
   } else if (host_id > 0) {
     e_interface_init(host_id);
-    
+
     h_interface_init(host_id);
   }
 #else
@@ -384,7 +394,7 @@ main(int argc, char *argv[])
   TerminateTask();
 
   os_print_error("e_machine_init: TerminateTask error");
-#else
+#elif defined(PTHREADS)
   while (n_enabled_triggers > 0) {
     e_machine_wait();
 
@@ -392,5 +402,7 @@ main(int argc, char *argv[])
   }
 
   exit(0);
+#elif defined(NXTOSEK)
+//todo
 #endif
 }
