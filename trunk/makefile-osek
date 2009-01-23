@@ -1,0 +1,198 @@
+##---------------------------------------------------------------------
+##                                                                     
+##           Copyright 2000, Wind River Systems, Inc.           
+##                      ALL RIGHTS RESERVED                            
+##                                                                     
+##   Permission is hereby granted to licensees of Wind River Systems,  
+##   Inc. products to use or abstract this computer program for the    
+##   sole purpose of implementing a product based on Wind River        
+##   Systems, Inc. products.   No other rights to reproduce, use,      
+##   or disseminate this computer program, whether in part or in       
+##   whole, are granted.                                               
+##                                                                     
+##   Wind River Systems, Inc. makes no representation or warranties    
+##   with respect to the performance of this computer program, and     
+##   specifically disclaims any responsibility for any damages,        
+##   special or consequential, connected with the use of this program. 
+##
+######################################################################
+#
+# Definitions required for Tornado build shell commands on Windows:
+#
+DIRCHAR = $(subst x,\,x)
+BLANK   = echo[
+RM      = del
+RMDIR   = rmdir /s /q
+MKDIR   = wrsmkdir
+CP      = copy
+MV      = move
+CAT     = type
+NUL     = nul
+
+#
+# Definitions used by Tornado to define the target build environment:
+# (WIND_BASE and WIND_HOST_TYPE are defined by Tornado or the OSEKWorks shell)
+#
+SHOW_CONFIG = YES
+CPU         = ppc
+TOOL        = diab
+BOARD       = $(OSEK_BOARD)
+ifeq ($(BOARD),)
+   BOARD    = motevb555
+endif
+BUILD_DIR   = $(BOARD)_obj
+ifeq ($(TOOLPATH),)
+   TOOLPATH = $(WIND_BASE)$(DIRCHAR)host
+endif
+
+#
+# Definitions used to define the OSEKWorks kernel build environment:
+#
+# OSEKWORKS = OSEKWorks root path
+# OSEK_INC  = full path to kernel include directory.
+# OSEK_SYS  = full path to kernel library root directory for specified cpu.
+# OSEK_BSP  = full path to bsp root directory for specified cpu and board.
+# 
+OSEKWORKS = $(WIND_BASE)$(DIRCHAR)target$(DIRCHAR)osekworks
+OSEK_INC  = $(OSEKWORKS)$(DIRCHAR)include
+OSEK_SYS  = $(OSEKWORKS)$(DIRCHAR)sys$(DIRCHAR)$(CPU)
+OSEK_BSP  = $(OSEKWORKS)$(DIRCHAR)bsp$(DIRCHAR)$(CPU)$(DIRCHAR)$(BOARD)
+
+#
+# Definitions for default source and build root directories:
+#
+# All user source files should reside in a tree under $(SRC).
+# Build derived objects are stored in a corresponding tree under $(BLD).
+# $(SRC) and $(BLD) can be independent directories, but in 
+# almost all cases you should leave them rooted at '.'
+#
+SRC = .
+BLD = .$(DIRCHAR)$(BUILD_DIR)
+
+#
+# Definitons for application files:
+#
+# C_FILES       = all application specific C source files.
+# S_FILES       = all application specific assembly source files.
+# APP_INCS      = all application specific include files.
+# MAIN_OIL_FILE = top level OIL source code file for the application.
+# INC_OIL_FILES = any OIL files which are included in the top level OIL file.
+#
+
+C_FILES = $(SRC)/emachine/e_machine.c $(SRC)/emachine/os_interface.c $(SRC)/emachine/e_interface.c \
+          $(SRC)/examples/ecode/e_code.c $(SRC)/examples/fcode/f_code.c $(SRC)/examples/ftable/f_table.c \
+          $(SRC)/examples/htable/h_table.c $(SRC)/examples/ntable/n_table.c $(SRC)/examples/stable/s_table.c \
+          $(SRC)/examples/scode/s_code.c $(SRC)/examples/fcode/f_interface.c $(SRC)/examples/scode/s_interface.c
+
+S_FILES = 
+
+APP_INCS =
+
+MAIN_OIL_FILE = $(OILFILES)
+
+INC_OIL_FILES = 
+
+
+######################################################################
+# The remainder of this makefile is generally not specific to
+# a particular application and normally need not be changed.
+######################################################################
+#
+# Include two symbol definitions from the BSP directory:
+# DTARGET - The target CPU
+# DFP     - The type of floating point support
+#
+include $(OSEK_BSP)/bsp.mk
+
+#
+# Include OIL generated symbol definitions:
+# RTA_CFLAGS - Compile flags enabling RTA
+#
+-include $(BLD)/oil.mk
+
+#
+# Define OSEKWorks header file to be included.
+#
+SYS_INCS = $(OSEK_INC)/osekworks.h
+
+#
+# Define OIL file symbols.
+#
+O_FILE        = $(BLD)/oil.c
+OIL_INCS      = $(BLD)/oil.h
+OIL_OUT_FILES = $(BLD)/oil.c $(BLD)/oil.h $(BLD)/oil.lk
+OIL_FILE      = $(subst /,$(DIRCHAR),$(MAIN_OIL_FILE))
+
+#
+# Define the OSEKWorks configurator executable.
+#
+CONFIGURATOR = $(TOOLPATH)$(DIRCHAR)$(WIND_HOST_TYPE)$(DIRCHAR)bin$(DIRCHAR)oilreader
+
+#
+# Define Diab compiler, assembler, and linker executables.
+# (DIABLIB is defined by Tornado or the OSEKWorks shell)
+#
+DIABBIN = $(DIABLIB)$(DIRCHAR)win32$(DIRCHAR)bin
+CC      = $(DIABBIN)$(DIRCHAR)dcc
+AS      = $(DIABBIN)$(DIRCHAR)das
+LD      = $(DIABBIN)$(DIRCHAR)dld
+DUMP    = $(DIABBIN)$(DIRCHAR)ddump
+
+#
+# Define Diab compiler, assembler, and linker flags.
+# Please refer to Diab tools documentation for a description.
+#
+CFLAGS = -c -g -D _OSEK_frontend_ -D OSEK \
+         -XO\
+         -Xstruct-best-align=0\
+         -Xansi\
+         -Xlint\
+         -Xkill-reorder=1\
+         -Xkill-reorder=8\
+         -Wa,-L\
+         -Xpass-source\
+         -Xdebug-struct-all\
+         -Xsmall-data=65536\
+         -Xsmall-const=65536\
+         -Xstring-align=1\
+         -t$(DTARGET)E$(DFP)\
+         $(RTA_CFLAGS)\
+         -I$(SRC)\
+         -I$(BLD)\
+         -I$(OSEK_INC)\
+         -I$(OSEK_BSP)$(DIRCHAR)include\
+         -I$(EMACHINEPATH) \
+         -I$(FTABLEPATH) -I$(FCODEPATH) \
+         -I$(STABLEPATH) -I$(SCODEPATH) \
+         -I$(ECODEPATH) \
+         -I$(HTABLEPATH) \
+         -I$(NTABLEPATH)
+
+#        -Xfar-code-relative\
+
+AFLAGS = -L -t$(DTARGET)E$(DFP)
+
+LFLAGS = -t$(DTARGET)E$(DFP) -Xsupress-dot -limpl -m2 -lc -lchar -lm
+
+#
+# Construct the object file lists.
+#
+S_OBJECTS = $(S_FILES:$(SRC)/%.s=$(BLD)/%.o)
+O_OBJECTS = $(O_FILE:$(BLD)/%.c=$(BLD)/%.o)
+C_OBJECTS = $(C_FILES:$(SRC)/%.c=$(BLD)/%.o)
+OBJ_FILES = $(C_OBJECTS) $(O_OBJECTS) $(S_OBJECTS) 
+
+#
+# Construct the list of derived object directories
+# which corresponds to the source directory tree.
+# These directories will be automatically created.
+#
+D1DIRS  = $(dir $(OBJ_FILES))
+D2DIRS  = $(sort $(D1DIRS))
+D3DIRS  = $(patsubst %,?%?,$(D2DIRS))
+D4DIRS  = $(filter-out ?./?,$(D3DIRS))
+D5DIRS  = $(subst /?,,$(D4DIRS))
+OBJDIRS = $(subst  ?,,$(D5DIRS))
+ifeq ($(strip $(OBJDIRS)),)
+OBJDIRS = .
+endif
