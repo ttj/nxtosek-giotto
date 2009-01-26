@@ -39,7 +39,7 @@ annotation_binding_type e_ready[MAXTASK];
 
 int arg1, arg2, arg3;
 
-int pc;
+int pc_emac;
 
 unsigned mask;     /* Auxiliary mask */
 unsigned ready;    /* tasks that are in the ready queue */
@@ -78,7 +78,7 @@ TASK(e_machine_and_drivers)
 #elif defined(PTHREADS)
 void e_machine(int trigger_number)
 #elif defined(NXTOSEK)
-TASK(e_machine_and_drivers_nxt)
+TASK(e_machine_and_drivers)
 #endif
 {
 #ifdef OSEK
@@ -110,12 +110,12 @@ TASK(e_machine_and_drivers_nxt)
     // points for Esterel compilation.
     i = 0;
 
-    pc = -1;
+    pc_emac = -1;
 
-    while ((pc == -1) && (i < n_enabled_triggers)) {
+    while ((pc_emac == -1) && (i < n_enabled_triggers)) {
       if (e_schedule[i].trigger->is_active(e_schedule[i].state, e_schedule[i].parameter)) {
 
-		pc = e_schedule[i].address;
+		pc_emac = e_schedule[i].address;
 
 		for(j = i; j < n_enabled_triggers-1; j++) {
 			e_schedule[j].trigger = e_schedule[j+1].trigger;
@@ -130,18 +130,18 @@ TASK(e_machine_and_drivers_nxt)
       }
     }
 
-    if (pc == -1) {
+    if (pc_emac == -1) {
       break;
 	}
 
-    while (pc != -1) {
-      arg1 = program[pc].arg1;
-      arg2 = program[pc].arg2;
-      arg3 = program[pc].arg3;
+    while (pc_emac != -1) {
+      arg1 = program[pc_emac].arg1;
+      arg2 = program[pc_emac].arg2;
+      arg3 = program[pc_emac].arg3;
 
-      switch(program[pc].opcode) {
+      switch(program[pc_emac].opcode) {
 		case OPCODE_nop:          /* nop() */
-			pc++;
+			pc_emac++;
 			break;
 
 		case OPCODE_future:       /* future(Trigger,Address,Parameter) */
@@ -157,12 +157,12 @@ TASK(e_machine_and_drivers_nxt)
 #elif defined(PTHREADS)
 			e_schedule[j].trigger->enable(e_machine, arg3);
 #elif defined(NXTOSEK)
-			e_schedule[j].trigger->enable(e_machine_and_drivers_nxt, arg3);
+			e_schedule[j].trigger->enable(TaskMaine_machine_and_drivers, arg3);
 #endif
 
 			n_enabled_triggers++;
 
-			pc++;
+			pc_emac++;
 
 			break;
 
@@ -187,7 +187,7 @@ TASK(e_machine_and_drivers_nxt)
 #endif
 			}
 
-			pc++;
+			pc_emac++;
 
 			break;
       case OPCODE_schedule:     /* schedule(Task,Annotation,Parameter) */
@@ -208,7 +208,7 @@ TASK(e_machine_and_drivers_nxt)
 	  e_ready[arg1].annotation->release(0, arg3);
 	}
 
-	pc++;
+	pc_emac++;
 
 	break;
       case OPCODE_if:           /* if(Condition,Then_Address,Else_Address) */
@@ -217,22 +217,22 @@ TASK(e_machine_and_drivers_nxt)
 
 	  os_print_warning(text_message);
 	} else if (condition_table[arg1].is_true())
-	  pc = arg2;
+	  pc_emac = arg2;
 	else
-	  pc = arg3;
+	  pc_emac = arg3;
 
 	break;
       case OPCODE_jump:         /* jump(Address) */
 	if(arg1 < 0) {
-	  pc++;
+	  pc_emac++;
 
 	  os_print_message("undefined jump -> continue");
 	} else
-	  pc = arg1;
+	  pc_emac = arg1;
 
 	break;
       case OPCODE_return:       /* return */
-	pc = -1;
+	pc_emac = -1;
 
 	break;
       default:
@@ -311,7 +311,8 @@ TASK(e_machine_init)
 #elif defined(PTHREADS)
 main(int argc, char *argv[])
 #elif defined(NXTOSEK)
-TASK(e_machine_init_nxt)
+TASK(e_machine_init)
+//void main(int argc, char *argv[])
 #endif
 {
   host_id_type host_id;
@@ -350,9 +351,9 @@ TASK(e_machine_init_nxt)
 //todo
   id = 0;
 
-  average_e_execution_time = 0.0;
+/*  average_e_execution_time = 0.0;
   average_d_execution_time = 0.0;
-  average_s_execution_time = 0.0;
+  average_s_execution_time = 0.0;*/
 #endif
 
   host_id = id;
@@ -376,7 +377,7 @@ TASK(e_machine_init_nxt)
 #elif defined(PTHREADS)
   e_schedule[0].trigger->enable(e_machine, 0);
 #elif defined(NXTOSEK)
-	e_schedule[0].trigger->enable(e_machine_and_drivers_nxt, 0);
+	e_schedule[0].trigger->enable(TaskMaine_machine_and_drivers, 0);
 #endif
 
   e_schedule[0].state = e_schedule[0].trigger->save();
@@ -413,6 +414,6 @@ TASK(e_machine_init_nxt)
 #elif defined(NXTOSEK)
 	TerminateTask();
 
-	os_print_error("e_machine_init_nxt: TerminateTask error");
+	os_print_error("e_machine_init: TerminateTask error");
 #endif
 }

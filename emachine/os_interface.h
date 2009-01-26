@@ -33,6 +33,8 @@
 #ifndef _OS_INTERFACE_
 #define _OS_INTERFACE_
 
+#define NXTOSEK
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -51,11 +53,12 @@
 #elif defined(NXTOSEK)
 //todo
 #include "kernel.h"
-#include "kernel_id.h"
+//#include "kernel_id.h"
+#include "ecrobot_interface.h"
 #endif
 
 #ifndef __MINGW32__
-#include <sys/ioctl.h>
+//#include <sys/ioctl.h>
 #endif
 
 unsigned os_key_event();
@@ -156,5 +159,7 @@ void os_thread_set_priority(os_thread_type *thread, unsigned priority);
 void os_pipe_create(char *pipe_name);
 
 #endif /* ifdef PTHREADS */
+
+void os_interface_init();
 
 #endif

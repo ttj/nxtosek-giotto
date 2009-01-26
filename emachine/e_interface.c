@@ -223,13 +223,19 @@ void e_interface_init() {
 
 //todo
 
+DeclareCounter(SysTimerCnt);
+DeclareTask(e_machine_init);
+DeclareTask(e_machine_and_drivers);
+DeclareTask(timer_code);
+DeclareTask(task_control);
 
-TASK(timer_code_nxt) {
+
+TASK(timer_code) {
   // FIXME: unprotected increase of timer_logical_time
 
   timer_logical_time = (timer_logical_time + MSEC_PER_UNIT) % logical_time_overflow;
 
-  e_machine_go_nxt();
+  e_machine_go();
 }
 
 void set_logical_time() {
@@ -246,16 +252,17 @@ unsigned get_logical_time_overflow() {
   return logical_time_overflow;
 }
 
-void e_machine_go_nxt() {
-  ChainTask(e_machine_and_drivers_nxt);
+void e_machine_go() {
+  ChainTask(e_machine_and_drivers);
 }
 
-void e_interface_init_nxt() {
+void e_interface_init() {
   timer_logical_time = logical_time_overflow - MSEC_PER_UNIT;
   global_logical_time = timer_logical_time;
 
-  if (SetRelAlarm(TimerAlarm, 1000, MSEC_PER_UNIT) != E_OK)
-    os_print_error("e_interface_init: SetRelAlarm error");
+//todo
+  //if (SetRelAlarm(TimerAlarm, 1000, MSEC_PER_UNIT) != E_OK)
+  //  os_print_error("e_interface_init: SetRelAlarm error");
 }
 
 

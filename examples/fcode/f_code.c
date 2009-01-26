@@ -31,6 +31,7 @@
 */
 
 #include "f_code.h"
+#include <string.h>
 
 void c_connect_sensor_to_return_key(c_bool *sensor) {
   *sensor = os_key_event();

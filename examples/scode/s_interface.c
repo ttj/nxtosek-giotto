@@ -47,7 +47,7 @@ unsigned is_task_finished(unsigned task_id) {
 void s_interface_init() {
 }
 
-#else
+#elif defined(PTHREADS)
 
 os_thread_type task_threads[MAXTASK];       /* task thread array */
 os_semaphore_type task_semaphores[MAXTASK]; /* task semaphore array */
@@ -96,4 +96,22 @@ void s_interface_init() {
     os_thread_create(&(task_threads[i]), &task_code, &(task_ids[i]));
   }
 }
+
+#elif defined(NXTOSEK)
+
+void schedule_task(unsigned task_id, int priority) {
+  if (ActivateTask((int) task_table[task_id].schedule) != E_OK)
+    os_print_error("schedule_task: ActivateTask error");
+}
+
+unsigned is_task_finished(unsigned task_id) {
+  // FIXME: enable runtime exceptions
+
+  return 1;
+}
+
+void s_interface_init() {
+}
+
+
 #endif
