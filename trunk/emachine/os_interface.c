@@ -34,7 +34,7 @@
 
 #define TEXT_MESSAGE_SIZE 100
 
-char text_message[TEXT_MESSAGE_SIZE];
+//char text_message[TEXT_MESSAGE_SIZE];
 
 #ifdef OSEK
 asm void asm_getTickCountLow(volatile unsigned int *timeL)
