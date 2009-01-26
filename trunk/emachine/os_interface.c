@@ -92,7 +92,8 @@ unsigned os_key_event() {
 
   return size;
 #elif defined(NXTOSEK)
-#endif
+//todo
+	return 0;
 #endif
 }
 
@@ -107,6 +108,7 @@ void os_print_message(char *message) {
   fflush(stdout);
 #elif defined(NXTOSEK)
 //todo
+	ecrobot_status_monitor(message); //other ways?
 #endif
 }
 
@@ -265,6 +267,49 @@ void os_pipe_create(char *pipe_name) {
 #elif defined(NXTOSEK)
 
 //todo
+
+DeclareCounter(SysTimerCnt);
+DeclareTask(e_machine_init);
+DeclareTask(e_machine_and_drivers);
+DeclareTask(timer_code);
+DeclareTask(task_control);
+
+//DeclareEvent(TouchSensorOnEvent); /* Event declaration */
+//DeclareEvent(TouchSensorOffEvent); /* Event declaration */
+
+
+
+/* LEJOS OSEK hooks */
+/*
+void ecrobot_device_initialize()
+{
+  nxt_motor_set_speed(NXT_PORT_A, 0, 1);
+  nxt_motor_set_speed(NXT_PORT_B, 0, 1);
+}
+
+void ecrobot_device_terminate()
+{
+  nxt_motor_set_speed(NXT_PORT_A, 0, 1);
+  nxt_motor_set_speed(NXT_PORT_B, 0, 1);
+}
+
+*/
+//LEJOS OSEK hook to be invoked from an ISR in category 2
+void user_1ms_isr_type2(void)
+{
+  StatusType ercd;
+
+  ercd = SignalCounter(SysTimerCnt); // Increment OSEK Alarm Counter
+  if(ercd != E_OK)
+  {
+    ShutdownOS(ercd);
+  }
+}
+
+
+
+
+
 
 #endif /* ifdef OSEK else */
 

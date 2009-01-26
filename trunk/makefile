@@ -12,6 +12,8 @@
 # CLASSPATH :=
 # JAVABINPATH :=
 
+NXTOSEK := 1
+
 ##########################################################################
 # SableCC path (parser generator)
 
@@ -57,6 +59,7 @@ HCODEPATH := $(EXAMPLEPATH)/hcode
 NTABLEPATH := $(EXAMPLEPATH)/ntable
 NCODEPATH := $(EXAMPLEPATH)/ncode
 OILPATH := $(EXAMPLEPATH)/oil
+NXTOSEKPATH := ../toppers_osek/include
 
 ##########################################################################
 # Get all source files
@@ -116,6 +119,8 @@ NCODEHEADERS := $(wildcard $(NCODEPATH)/*.h)
 NCODEBACKUPS := $(wildcard $(NCODEPATH)/*~)
 NCODEBINARIES := $(patsubst %.c,%.o,$(NCODESOURCES))
 
+NXTOSEKHEADERS := $(wildcard $(NXTOSEKPATH)/*.h)
+
 OILFILES := $(wildcard $(OILPATH)/*.oil)
 
 SOURCES := $(EMACHINESOURCES) \
@@ -132,7 +137,8 @@ HEADERS := $(EMACHINEHEADERS) \
            $(STABLEHEADERS) $(SCODEHEADERS) \
            $(ECODEHEADERS) \
            $(HTABLEHEADERS) \
-           $(NTABLEHEADERS)
+           $(NTABLEHEADERS) \
+           $(NXTOSEKHEADERS)
 
 BACKUPS := $(EMACHINEBACKUPS) \
            $(UPLOADERBACKUPS) \
@@ -171,6 +177,11 @@ else
 ifdef OSEK
 
 # OSEK
+PTHREADSDIR :=
+PTHREADSLIBDIRECTIVE :=
+
+elif defined(NXTOSEK)
+
 PTHREADSDIR :=
 PTHREADSLIBDIRECTIVE :=
 
@@ -234,6 +245,8 @@ CFLAGS := -I$(EMACHINEPATH) \
           -I$(HTABLEPATH) \
           -I$(NTABLEPATH) \
           -I$(PTHREADSDIR) \
+          -I$(NXTOSEKPATH) \
+          -I../../ecrobot\
           -DDEBUG
 
 endif # OSEK
@@ -277,6 +290,35 @@ emachine: compile BUILD_ALL
 else
 
 emachine: compile $(EMACHINE)
+
+# Target specific macros
+TOPPERS_OSEK_OIL_SOURCE := ./emachine.oil
+
+TARGET = emac
+SRC := .
+TARGET_SOURCES := \
+	  $(SRC)/emachine/e_machine.c $(SRC)/emachine/os_interface.c $(SRC)/emachine/e_interface.c \
+          $(SRC)/examples/ecode/e_code.c $(SRC)/examples/fcode/f_code.c $(SRC)/examples/ftable/f_table.c \
+          $(SRC)/examples/htable/h_table.c $(SRC)/examples/ntable/n_table.c $(SRC)/examples/stable/s_table.c \
+          $(SRC)/examples/scode/s_code.c $(SRC)/examples/fcode/f_interface.c $(SRC)/examples/scode/s_interface.c \
+          $(SOURCES)
+
+USER_INC_PATH = $(EMACHINEPATH) \
+          $(UPLOADERPATH) \
+          $(FTABLEPATH) \
+          $(FCODEPATH) \
+          $(STABLEPATH) \
+          $(SCODEPATH) \
+          $(ECODEPATH) \
+          $(HTABLEPATH) \
+          $(NTABLEPATH) \
+          $(PTHREADSDIR) \
+          $(NXTOSEKPATH)
+
+
+O_PATH ?= ../build
+
+include ../../../ecrobot/ecrobot.mak
 
 endif # OSEK
 

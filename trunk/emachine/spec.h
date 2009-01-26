@@ -32,6 +32,8 @@
 #ifndef _SPEC_
 #define _SPEC_
 
+#define NXTOSEK
+
 #define MAXNAME 100  /* max char length for names */
 
 #endif
