@@ -2,215 +2,183 @@
 
 CPU ATMEL_AT91SAM7S256
 {
-  OS LEJOS_OSEK
-  {
-    STATUS = STANDARD; /*changed, EXTENDED*/
-    STARTUPHOOK = TRUE; /*changed, FALSE */
-    ERRORHOOK = FALSE;
-    SHUTDOWNHOOK = FALSE;
-    PRETASKHOOK = FALSE;
-    POSTTASKHOOK = FALSE;
-    USEGETSERVICEID = FALSE;
-    USEPARAMETERACCESS = FALSE;
-    USERESSCHEDULER = FALSE;
-//    CC = AUTO; /*add*/
-//    SCHEDULE = AUTO; /*add*/
-//    SYSTEMSTACKSIZE = 9092; /*add*/
+	OS LEJOS_OSEK
+	{
+		STATUS = EXTENDED;
+		STARTUPHOOK = FALSE;
+		ERRORHOOK = FALSE;
+		SHUTDOWNHOOK = FALSE;
+		PRETASKHOOK = FALSE;
+		POSTTASKHOOK = FALSE;
+		USEGETSERVICEID = FALSE;
+		USEPARAMETERACCESS = FALSE;
+		USERESSCHEDULER = FALSE;
+	};
+
+	/* Definition of application mode */
+	APPMODE appmode1{}; 
+
+  
+	TASK e_machine_init {
+		SCHEDULE = NON;
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		AUTOSTART = TRUE;
+		STACKSIZE = 2048;//changed from 2048
+	};
+
+	TASK e_machine_and_drivers {
+		SCHEDULE = NON;
+		PRIORITY = 2;
+		ACTIVATION = 5;
+		AUTOSTART = FALSE;
+		STACKSIZE = 2048;
+	};
+
+	TASK timer_code {
+		SCHEDULE = NON;
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		AUTOSTART = FALSE;
+		STACKSIZE = 2048;
+	};
+
+
+	TASK task_control {
+		SCHEDULE = FULL;
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		AUTOSTART = FALSE;
+		STACKSIZE = 2048;
+	};
+
+	TASK task_navigation {
+		SCHEDULE = FULL;
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		AUTOSTART = FALSE;
+		STACKSIZE = 2048;
+	};
+	
 /*
-	STATUS = STANDARD;
-	SCHEDULE = AUTO;
-	SYSTEMSTACKSIZE = 9092;
-	StartupHook = TRUE;
-	ErrorHook = FALSE;
-	ShutdownHook = FALSE;
-	PreTaskHook = FALSE;
-	PostTaskHook = FALSE;
-	WINDVIEW_SUPPORT = TRUE;
-*/
-  };
+	TASK Task1
+	{
+		AUTOSTART = FALSE;
+		PRIORITY = 3;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		STACKSIZE = 512;
+	};
 
-  /* Definition of application mode */
-  APPMODE appmode1{}; 
+	TASK Task2
+	{
+		AUTOSTART = FALSE;
+		PRIORITY = 2;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		STACKSIZE = 512;
+	};
 
-/*
-  TASK Task1
-  {
-    AUTOSTART = FALSE;
-    PRIORITY = 3;
-    ACTIVATION = 1;
-    SCHEDULE = FULL;
-    STACKSIZE = 512;
-  };
-
-  TASK Task2
-  {
-    AUTOSTART = FALSE;
-    PRIORITY = 2;
-    ACTIVATION = 1;
-    SCHEDULE = FULL;
-    STACKSIZE = 512;
-  };
-
-  TASK TaskLCD
-  {
-    AUTOSTART = FALSE;
-    PRIORITY = 1;
-    ACTIVATION = 1;
-    SCHEDULE = FULL;
-    STACKSIZE = 512;
-  };
-*/
-
-  /* Definition of OSEK Alarm Counter */
-  COUNTER SysTimerCnt
-  {
-    MINCYCLE = 1;
-    MAXALLOWEDVALUE = 10000;
-    TICKSPERBASE = 1; /* One tick is equal to 1msec */ 
-  };
-
-/*
-  ALARM cyclic_alarm1
-  {
-    COUNTER = SysTimerCnt;
-    ACTION = ACTIVATETASK
-    {
-        TASK = Task1;
-    };
-    AUTOSTART = TRUE
-    {
-        ALARMTIME = 1;
-        CYCLETIME = 1; //1msec execution
-        APPMODE = appmode1;
-    };
-  };
-
-  ALARM cyclic_alarm2
-  {
-    COUNTER = SysTimerCnt;
-    ACTION = ACTIVATETASK
-    {
-        TASK = Task2;
-    };
-    AUTOSTART = TRUE
-    {
-        ALARMTIME = 1;
-        CYCLETIME = 500; //500msec execution
-        APPMODE = appmode1;
-    };
-  };
-
-  ALARM cyclic_alarmLCD
-  {
-    COUNTER = SysTimerCnt;
-    ACTION = ACTIVATETASK
-    {
-        TASK = TaskLCD;
-    };
-    AUTOSTART = TRUE
-    {
-        ALARMTIME = 1;
-        CYCLETIME = 500; //500msec execution
-        APPMODE = appmode1;
-    };
-  };
-  */
-  
-  
-  
-  
-  
-  
-  
-   TASK e_machine_init {
-//           TYPE = BASIC;
-           SCHEDULE = NON;
-           PRIORITY = 1;
-           ACTIVATION = 1;
-           AUTOSTART = TRUE;
-           STACKSIZE = 2048;
-//           SCHEDULE_CALL = FALSE;
-   };
-
-   TASK e_machine_and_drivers {
-//           TYPE = BASIC;
-           SCHEDULE = NON;
-           PRIORITY = 2;
-           ACTIVATION = 5;
-           AUTOSTART = FALSE;
-           STACKSIZE = 2048;
-//           SCHEDULE_CALL = FALSE;
-   };
-
-   TASK timer_code {
-//           TYPE = BASIC;
-           SCHEDULE = NON;
-           PRIORITY = 1;
-           ACTIVATION = 1;
-           AUTOSTART = FALSE;
-           STACKSIZE = 2048;
-//           SCHEDULE_CALL = FALSE;
-   };
-
-/*
-   TASK task_control {
-//           TYPE = BASIC;
-           SCHEDULE = FULL;
-           PRIORITY = 1;
-           ACTIVATION = 1;
-           AUTOSTART = FALSE;
-           STACKSIZE = 2048;
-//           SCHEDULE_CALL = FALSE;
-   };
-
-   TASK task_navigation {
-//           TYPE = BASIC;
-           SCHEDULE = FULL;
-           PRIORITY = 1;
-           ACTIVATION = 1;
-           AUTOSTART = FALSE;
-           STACKSIZE = 2048;
-//           SCHEDULE_CALL = FALSE;
-   };
+	TASK TaskLCD
+	{
+		AUTOSTART = FALSE;
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		SCHEDULE = FULL;
+		STACKSIZE = 512;
+	};
 */
 
-   /**************************************************************************/
-   /*             Alarms                                                     */
-   /**************************************************************************/
+	/**************************************************************************/
+	/*             Alarms                                                     */
+	/**************************************************************************/
 
-/*   ALARM TimerAlarm {
-    COUNTER = SYSTEM_COUNTER;
-    ACTION = ACTIVATETASK
-    {
-        TASK = timer_code;
-    };
-    AUTOSTART = TRUE
-    {
-        ALARMTIME = 1;
-        CYCLETIME = 500; //500msec
-        APPMODE = appmode1;
-    };
-   };
-*/
+	ALARM TimerAlarm {
+		COUNTER = SYSTEM_COUNTER;
+		ACTION = ACTIVATETASK
+		{
+			TASK = timer_code;
+		};
+		AUTOSTART = TRUE
+		{
+			ALARMTIME = 1;
+			CYCLETIME = 500; //500msec
+			APPMODE = appmode1;
+		};
+	};
+
+/*
+	ALARM cyclic_alarm1
+	{
+		COUNTER = SysTimerCnt;
+		ACTION = ACTIVATETASK
+		{
+			TASK = Task1;
+		};
+		AUTOSTART = TRUE
+		{
+			ALARMTIME = 1;
+			CYCLETIME = 1; //1msec execution
+			APPMODE = appmode1;
+		};
+	};    
 
 
-   /**************************************************************************/
-   /*             Resources                                                  */
-   /**************************************************************************/
+	ALARM cyclic_alarm2
+	{
+		COUNTER = SysTimerCnt;
+		ACTION = ACTIVATETASK
+		{
+			TASK = Task2;
+		};
+		AUTOSTART = TRUE
+		{
+			ALARMTIME = 1;
+			CYCLETIME = 500; //500msec execution
+			APPMODE = appmode1;
+		};
+	};
 
-//   RESOURCE RES_SCHEDULER {
-           /* No attributes defined */
-//   };
+	ALARM cyclic_alarmLCD
+	{
+		COUNTER = SysTimerCnt;
+		ACTION = ACTIVATETASK
+		{
+			TASK = TaskLCD;
+		};
+		AUTOSTART = TRUE
+		{
+			ALARMTIME = 1;
+			CYCLETIME = 500; //500msec execution
+			APPMODE = appmode1;
+		};
+	};
+	*/
 
 
-   /**************************************************************************/
-   /*             Counters                                                   */
-   /**************************************************************************/
+	/**************************************************************************/
+	/*             Resources                                                  */
+	/**************************************************************************/
 
-   COUNTER SYSTEM_COUNTER {
-           MAXALLOWEDVALUE = 65535;
-           TICKSPERBASE = 1;
-           MINCYCLE = 1;
-   };
-  
+//	RESOURCE RES_SCHEDULER {
+		/* No attributes defined */
+//	};
+
+
+	/**************************************************************************/
+	/*             Counters                                                   */
+	/**************************************************************************/
+
+	COUNTER SYSTEM_COUNTER {
+		MAXALLOWEDVALUE = 65535;
+		TICKSPERBASE = 1;
+		MINCYCLE = 1;
+	};
+
+	COUNTER SysTimerCnt
+	{
+		MINCYCLE = 1;
+		MAXALLOWEDVALUE = 10000;
+		TICKSPERBASE = 1; /* One tick is equal to 1msec */ 
+	};
 };

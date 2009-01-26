@@ -46,22 +46,22 @@ void c_connect_sensor_to_random_generator(c_int *sensor) {
   *sensor = 1 + (int)(MAXDISPLAY*(double)rand()/(RAND_MAX+1.0));
 #endif
 
-  sprintf(text_message, "\t\tSensor reading:  ");
+//  sprintf(text_message, "\t\tSensor reading:  ");
 
-  text_message_length = strlen(text_message);
+//  text_message_length = strlen(text_message);
 
-  for(i = text_message_length; i < *sensor + text_message_length; i++)
-    text_message[i] = '*';
+//  for(i = text_message_length; i < *sensor + text_message_length; i++)
+//    text_message[i] = '*';
 
-  text_message[i] = 0;
+//  text_message[i] = 0;
 
-  os_print_message(text_message);
+//  os_print_message(text_message);
 }
 
 void c_connect_actuator_to_display(c_string *string) {
-  sprintf(text_message, "\t\tActuator update: %s", *string);
+//  sprintf(text_message, "\t\tActuator update: %s", *string);
 
-  os_print_message(text_message);
+//  os_print_message(text_message);
 }
 
 void c_empty_string(c_string *string) {

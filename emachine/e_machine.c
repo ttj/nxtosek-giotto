@@ -93,9 +93,9 @@ TASK(e_machine_and_drivers)
 
   ready = schedule;
 
-  sprintf(text_message, "E machine time: %dms", get_logical_time());
+//  sprintf(text_message, "E machine time: %dms", get_logical_time());
 
-  os_print_message(text_message);
+//  os_print_message(text_message);
 
   for(i = 0, mask = 1; i < MAXTASK; i++) {
     if (!is_task_finished(i))
@@ -168,9 +168,9 @@ TASK(e_machine_and_drivers)
 
 		case OPCODE_call:         /* call(Driver) */
 			if (driver_table[arg1].protected & ready) {
-			  sprintf(text_message, "call(%d) exception (deadline violation)", arg1);
+//			  sprintf(text_message, "call(%d) exception (deadline violation)", arg1);
 
-			  os_print_warning(text_message);
+//			  os_print_warning(text_message);
 			} else {
 #ifdef OSEK
 		  getTickCountLow(&current_system_time);
@@ -194,9 +194,9 @@ TASK(e_machine_and_drivers)
 	mask = 1 << arg1;
 
 	if (ready & mask) {
-	  sprintf(text_message, "schedule(%d) too early (deadline violation)", arg1);
+//	  sprintf(text_message, "schedule(%d) too early (deadline violation)", arg1);
 
-	  os_print_warning(text_message);
+//	  os_print_warning(text_message);
 	} else {
 	  schedule = schedule | mask;
 
@@ -213,9 +213,9 @@ TASK(e_machine_and_drivers)
 	break;
       case OPCODE_if:           /* if(Condition,Then_Address,Else_Address) */
 	if (condition_table[arg1].protected & ready) {
-	  sprintf(text_message, "if(%d, %d, %d) exception (deadline violation)", arg1, arg2, arg3);
+//	  sprintf(text_message, "if(%d, %d, %d) exception (deadline violation)", arg1, arg2, arg3);
 
-	  os_print_warning(text_message);
+//	  os_print_warning(text_message);
 	} else if (condition_table[arg1].is_true())
 	  pc_emac = arg2;
 	else
@@ -290,14 +290,14 @@ TASK(e_machine_and_drivers)
 
   if (get_logical_time() % 1000 == 0) {
     // Print only every second
-    sprintf(text_message,
+/*    sprintf(text_message,
 	    "E: %6.2f, D: %6.2f, S: %6.2f, E/E+D: %6.2f\%",
 	    average_e_execution_time,
 	    average_d_execution_time,
 	    average_s_execution_time,
 	    average_e_execution_time * 100.0 / (average_e_execution_time + average_d_execution_time));
 
-    os_print_warning(text_message);
+    os_print_warning(text_message);*/
   }
 
   TerminateTask();
@@ -333,17 +333,17 @@ TASK(e_machine_init)
     os_print_error("Usage: e_machine [host_id]");
   else if (argc == 2) {
     if (sscanf(argv[1], "%d", &id) < 1) {
-      sprintf(text_message, "Host id: %s, invalid format", argv[1]);
+//      sprintf(text_message, "Host id: %s, invalid format", argv[1]);
 
-      os_print_error(text_message);
+//      os_print_error(text_message);
     }
 
     if ((id < 0) ||
 	(MAXHOST == 0 && id > 0) ||
 	((MAXHOST > 0) && (id > MAXHOST - 1))) {
-      sprintf(text_message, "Host id: %d, out of range", id);
+//      sprintf(text_message, "Host id: %d, out of range", id);
 
-      os_print_error(text_message);
+//      os_print_error(text_message);
     }
   } else
     id = 0;

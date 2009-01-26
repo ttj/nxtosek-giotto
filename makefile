@@ -320,6 +320,7 @@ O_PATH ?= ../build
 
 include ../../../ecrobot/ecrobot.mak
 
+
 endif # OSEK
 
 uploader: $(UPLOADER)
