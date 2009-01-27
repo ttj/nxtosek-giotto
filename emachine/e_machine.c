@@ -51,7 +51,7 @@ int priority, highest_priority;
 int highest_priority_task;
 
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 double average_e_execution_time;
 double average_d_execution_time;
 double average_s_execution_time;
@@ -73,15 +73,14 @@ unsigned int e_execution_time,
  *
  * ---------------------------------------------------------------- */
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 TASK(e_machine_and_drivers)
 #elif defined(PTHREADS)
 void e_machine(int trigger_number)
-#elif defined(NXTOSEK)
-TASK(e_machine_and_drivers)
 #endif
 {
-#ifdef OSEK
+	int flipper=0;
+#if defined(OSEK) || defined(NXTOSEK)
   getTickCountLow(&last_system_time);
 
   e_execution_time = 0;
@@ -157,7 +156,7 @@ TASK(e_machine_and_drivers)
 #elif defined(PTHREADS)
 			e_schedule[j].trigger->enable(e_machine, arg3);
 #elif defined(NXTOSEK)
-			e_schedule[j].trigger->enable(TaskMaine_machine_and_drivers, arg3);
+			e_schedule[j].trigger->enable((int)TASKNAME(e_machine_and_drivers), arg3);
 #endif
 
 			n_enabled_triggers++;
@@ -172,7 +171,7 @@ TASK(e_machine_and_drivers)
 
 //			  os_print_warning(text_message);
 			} else {
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 		  getTickCountLow(&current_system_time);
 
 		  e_execution_time = e_execution_time + current_system_time - last_system_time;
@@ -180,7 +179,7 @@ TASK(e_machine_and_drivers)
 
 		  driver_table[arg1].call();
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 		  getTickCountLow(&last_system_time);
 
 		  d_execution_time = d_execution_time + last_system_time - current_system_time;
@@ -242,7 +241,7 @@ TASK(e_machine_and_drivers)
     } /* interpreter while */
   } /* fixed-point while */
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
   getTickCountLow(&current_system_time);
 
   e_execution_time = e_execution_time + current_system_time - last_system_time;
@@ -273,7 +272,7 @@ TASK(e_machine_and_drivers)
     schedule_task(highest_priority_task, highest_priority);
   }
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
   getTickCountLow(&last_system_time);
 
   s_execution_time = s_execution_time + last_system_time - current_system_time;
@@ -289,6 +288,17 @@ TASK(e_machine_and_drivers)
   }
 
   if (get_logical_time() % 1000 == 0) {
+	  if (flipper==0) {
+		ecrobot_set_light_sensor_active(NXT_PORT_S4);
+		flipper=1;
+	  }
+	  else {
+		ecrobot_set_light_sensor_inactive(NXT_PORT_S4);
+		flipper=0;
+	  }
+
+
+
     // Print only every second
 /*    sprintf(text_message,
 	    "E: %6.2f, D: %6.2f, S: %6.2f, E/E+D: %6.2f\%",
@@ -306,13 +316,10 @@ TASK(e_machine_and_drivers)
 #endif
 }
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 TASK(e_machine_init)
 #elif defined(PTHREADS)
 main(int argc, char *argv[])
-#elif defined(NXTOSEK)
-TASK(e_machine_init)
-//void main(int argc, char *argv[])
 #endif
 {
   host_id_type host_id;
@@ -322,7 +329,7 @@ TASK(e_machine_init)
   if (sizeof(int) < 4)
     os_print_error("E machine needs at least 32 bits for data type int");
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
   id = 0;
 
   average_e_execution_time = 0.0;
@@ -333,27 +340,20 @@ TASK(e_machine_init)
     os_print_error("Usage: e_machine [host_id]");
   else if (argc == 2) {
     if (sscanf(argv[1], "%d", &id) < 1) {
-//      sprintf(text_message, "Host id: %s, invalid format", argv[1]);
+      sprintf(text_message, "Host id: %s, invalid format", argv[1]);
 
-//      os_print_error(text_message);
+      os_print_error(text_message);
     }
 
     if ((id < 0) ||
 	(MAXHOST == 0 && id > 0) ||
 	((MAXHOST > 0) && (id > MAXHOST - 1))) {
-//      sprintf(text_message, "Host id: %d, out of range", id);
+      sprintf(text_message, "Host id: %d, out of range", id);
 
-//      os_print_error(text_message);
+      os_print_error(text_message);
     }
   } else
     id = 0;
-#elif defined(NXTOSEK)
-//todo
-  id = 0;
-
-/*  average_e_execution_time = 0.0;
-  average_d_execution_time = 0.0;
-  average_s_execution_time = 0.0;*/
 #endif
 
   host_id = id;
@@ -377,7 +377,7 @@ TASK(e_machine_init)
 #elif defined(PTHREADS)
   e_schedule[0].trigger->enable(e_machine, 0);
 #elif defined(NXTOSEK)
-	e_schedule[0].trigger->enable(TaskMaine_machine_and_drivers, 0);
+	e_schedule[0].trigger->enable((int)TASKNAME(e_machine_and_drivers), 0);
 #endif
 
   e_schedule[0].state = e_schedule[0].trigger->save();
@@ -399,7 +399,7 @@ TASK(e_machine_init)
   e_interface_init();
 #endif
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
   TerminateTask();
 
   os_print_error("e_machine_init: TerminateTask error");
@@ -411,9 +411,5 @@ TASK(e_machine_init)
   }
 
   exit(0);
-#elif defined(NXTOSEK)
-	TerminateTask();
-
-	os_print_error("e_machine_init: TerminateTask error");
 #endif
 }

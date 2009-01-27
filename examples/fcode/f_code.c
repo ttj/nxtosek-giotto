@@ -40,7 +40,7 @@ void c_connect_sensor_to_return_key(c_bool *sensor) {
 void c_connect_sensor_to_random_generator(c_int *sensor) {
   unsigned i, text_message_length;
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
   *sensor = (*sensor + 1) % 10;
 #else
   *sensor = 1 + (int)(MAXDISPLAY*(double)rand()/(RAND_MAX+1.0));

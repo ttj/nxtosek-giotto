@@ -64,7 +64,7 @@ void loader_code(void *args);
 host_id_type my_host_id;
 #endif
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 TASK(timer_code) {
   // FIXME: unprotected increase of timer_logical_time
 
@@ -99,7 +99,7 @@ void e_interface_init() {
     os_print_error("e_interface_init: SetRelAlarm error");
 }
 
-#elif defined(PTHREADS) /* OSEK */
+#elif defined(PTHREADS)
 
 /* -------------------------------------------------------------------
  *
@@ -218,65 +218,7 @@ void e_interface_init() {
   os_thread_create(&timer_thread, &timer_code, &timer);
 #endif
 }
-
-#elif defined(NXTOSEK)
-
-//todo
-
-DeclareCounter(SysTimerCnt);
-DeclareTask(e_machine_init);
-DeclareTask(e_machine_and_drivers);
-DeclareTask(timer_code);
-DeclareTask(task_control);
-
-
-TASK(timer_code) {
-  // FIXME: unprotected increase of timer_logical_time
-
-  timer_logical_time = (timer_logical_time + MSEC_PER_UNIT) % logical_time_overflow;
-
-  e_machine_go();
-}
-
-void set_logical_time() {
-  // FIXME: unprotected access of timer_logical_time
-
-  global_logical_time = timer_logical_time;
-}
-
-unsigned get_logical_time() {
-  return global_logical_time;
-}
-
-unsigned get_logical_time_overflow() {
-  return logical_time_overflow;
-}
-
-void e_machine_go() {
-  ChainTask(e_machine_and_drivers);
-}
-
-void e_interface_init() {
-  timer_logical_time = logical_time_overflow - MSEC_PER_UNIT;
-  global_logical_time = timer_logical_time;
-
-//todo
-  //if (SetRelAlarm(TimerAlarm, 1000, MSEC_PER_UNIT) != E_OK)
-  //  os_print_error("e_interface_init: SetRelAlarm error");
-}
-
-
-
-
-
-
-
-
-
-
-
-
-#endif /* ifdef OSEK elif PTHREADS elif NXTOSEK */
+#endif
 
 #ifdef DYNAMIC
 

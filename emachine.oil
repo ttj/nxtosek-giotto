@@ -102,7 +102,7 @@ CPU ATMEL_AT91SAM7S256
 		AUTOSTART = TRUE
 		{
 			ALARMTIME = 1;
-			CYCLETIME = 500; //500msec
+			CYCLETIME = 1000; //100msec
 			APPMODE = appmode1;
 		};
 	};
@@ -161,7 +161,7 @@ CPU ATMEL_AT91SAM7S256
 	/**************************************************************************/
 
 //	RESOURCE RES_SCHEDULER {
-		/* No attributes defined */
+//		none
 //	};
 
 
@@ -179,6 +179,6 @@ CPU ATMEL_AT91SAM7S256
 	{
 		MINCYCLE = 1;
 		MAXALLOWEDVALUE = 10000;
-		TICKSPERBASE = 1; /* One tick is equal to 1msec */ 
+		TICKSPERBASE = 1; //One tick is equal to 1msec
 	};
 };

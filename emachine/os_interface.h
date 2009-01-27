@@ -51,9 +51,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #elif defined(NXTOSEK)
-//todo
 #include "kernel.h"
-//#include "kernel_id.h"
+#include "kernel_id.h"
 #include "ecrobot_interface.h"
 #endif
 
@@ -66,6 +65,7 @@ unsigned os_key_event();
 void os_print_message(char *message);
 void os_print_warning(char *message);
 void os_print_error(char *message);
+void getTickCountLow(volatile unsigned int *timeL);
 
 #ifdef PTHREADS
 typedef struct timespec os_time_type;
@@ -159,6 +159,17 @@ void os_thread_set_priority(os_thread_type *thread, unsigned priority);
 void os_pipe_create(char *pipe_name);
 
 #endif /* ifdef PTHREADS */
+
+DeclareCounter(SysTimerCnt);
+DeclareCounter(SYSTEM_COUNTER);
+DeclareTask(e_machine_init);
+DeclareTask(e_machine_and_drivers);
+DeclareTask(timer_code);
+DeclareTask(task_control);
+DeclareTask(task_navigation);
+DeclareAlarm(TimerAlarm);
+//DeclareEvent(TouchSensorOnEvent);
+//DeclareEvent(TouchSensorOffEvent);
 
 void os_interface_init();
 
