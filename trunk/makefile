@@ -198,12 +198,12 @@ endif
 # CLASSPATH
 
 ifdef WINDOWS
-CLASSPATHSEPARATOR := ;
+	CLASSPATHSEPARATOR := ;
 else
 ifdef OSEK
-CLASSPATHSEPARATOR := ;
+	CLASSPATHSEPARATOR := ;
 else
-CLASSPATHSEPARATOR := :
+	CLASSPATHSEPARATOR := :
 endif
 endif
 
@@ -275,21 +275,7 @@ LDFLAGS := $(PTHREADSLIBDIRECTIVE) -lm
 .PHONY : giottoc parser compile emachine uploader all run clean \
 giottoc-clean parser-clean binary-clean backup-clean realclean
 
-giottoc: parser $(JAVACLASSES)
-
-parser: $(PARSER)
-
-compile: $(ECODESOURCES)
-
-ifdef OSEK
-
--include makefile-osek-rules
-
-emachine: compile BUILD_ALL
-
-else
-
-emachine: compile $(EMACHINE)
+ifdef NXTOSEK
 
 # Target specific macros
 TOPPERS_OSEK_OIL_SOURCE := ./emachine.oil
@@ -320,6 +306,23 @@ O_PATH ?= ../build
 
 include ../../../ecrobot/ecrobot.mak
 
+else
+
+giottoc: parser $(JAVACLASSES)
+
+parser: $(PARSER)
+
+compile: $(ECODESOURCES)
+
+ifdef OSEK
+
+-include makefile-osek-rules
+
+emachine: compile BUILD_ALL
+
+else
+
+emachine: compile $(EMACHINE)
 
 endif # OSEK
 
@@ -372,3 +375,4 @@ $(EMACHINE): $(BINARIES)
 
 $(UPLOADER): $(UPLOADERBINARIES)
 	$(CC) $^ -o $@ $(LDFLAGS)
+endif #NXTOSEK

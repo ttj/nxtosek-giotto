@@ -34,10 +34,10 @@
 
 #define TEXT_MESSAGE_SIZE 100
 
-//char text_message[TEXT_MESSAGE_SIZE];
+char text_message[TEXT_MESSAGE_SIZE];
 
-#ifdef OSEK
-asm void asm_getTickCountLow(volatile unsigned int *timeL)
+#if defined(OSEK)
+asm void os_getTickCountLow(volatile unsigned int *timeL)
 {
 %reg timeL
 ! "r12"
@@ -45,10 +45,16 @@ asm void asm_getTickCountLow(volatile unsigned int *timeL)
    stwu  r12,(timeL)
 }
 
-void getTickCountLow(volatile unsigned int *timeL) {
-	asm_getTickCountLow(timeL);
+#elif defined(NXTOSEK)
+void os_getTickCountLow(volatile unsigned int *timeL) {
+	//todo: get real interface to RTC for NXTOSEK
+	*timeL = 0;
 }
 #endif
+
+void getTickCountLow(volatile unsigned int *timeL) {
+	os_getTickCountLow(timeL);
+}
 
 #ifdef __MINGW32__
 static HANDLE hstdin = 0;
@@ -108,7 +114,7 @@ void os_print_message(char *message) {
   fflush(stdout);
 #elif defined(NXTOSEK)
 //todo
-	ecrobot_status_monitor(message); //other ways?
+
 #endif
 }
 
@@ -266,40 +272,45 @@ void os_pipe_create(char *pipe_name) {
 
 #elif defined(NXTOSEK)
 
-//todo
-
-DeclareCounter(SysTimerCnt);
-DeclareTask(e_machine_init);
-DeclareTask(e_machine_and_drivers);
-DeclareTask(timer_code);
-DeclareTask(task_control);
-
-//DeclareEvent(TouchSensorOnEvent); /* Event declaration */
-//DeclareEvent(TouchSensorOffEvent); /* Event declaration */
-
-
-
-/* LEJOS OSEK hooks */
-/*
 void ecrobot_device_initialize()
 {
-  nxt_motor_set_speed(NXT_PORT_A, 0, 1);
-  nxt_motor_set_speed(NXT_PORT_B, 0, 1);
+//	Serial_Driver_Install(CHAN1, SIOCPOLLED, 9600); //this looks like a uart (9600 baud)
+
+//	RtcInit(1000, SYSTEM_COUNTER);
+
+	nxt_motor_set_speed(NXT_PORT_A, 0, 1);
+	nxt_motor_set_speed(NXT_PORT_B, 0, 1);
+	nxt_motor_set_speed(NXT_PORT_C, 1, 1);
+	ecrobot_set_light_sensor_active(NXT_PORT_S1);
+	ecrobot_init_sonar_sensor(NXT_PORT_S2);
+	ecrobot_init_sonar_sensor(NXT_PORT_S3);
+	ecrobot_set_light_sensor_active(NXT_PORT_S4);
 }
 
 void ecrobot_device_terminate()
 {
   nxt_motor_set_speed(NXT_PORT_A, 0, 1);
   nxt_motor_set_speed(NXT_PORT_B, 0, 1);
+  nxt_motor_set_speed(NXT_PORT_C, 0, 1);
+  ecrobot_set_light_sensor_inactive(NXT_PORT_S1);
+  ecrobot_term_sonar_sensor(NXT_PORT_S2);
+  ecrobot_term_sonar_sensor(NXT_PORT_S3);
+  ecrobot_set_light_sensor_inactive(NXT_PORT_S4);
 }
 
-*/
 //LEJOS OSEK hook to be invoked from an ISR in category 2
 void user_1ms_isr_type2(void)
 {
+  int i=0;
   StatusType ercd;
 
   ercd = SignalCounter(SysTimerCnt); // Increment OSEK Alarm Counter
+  if(ercd != E_OK)
+  {
+    ShutdownOS(ercd);
+  }
+
+  ercd = SignalCounter(SYSTEM_COUNTER);
   if(ercd != E_OK)
   {
     ShutdownOS(ercd);

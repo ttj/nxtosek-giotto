@@ -42,15 +42,13 @@ void driver_navigation_output_copy_c_int () {
 }
 
 c_int control_control_input;
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 TASK(task_control) {
 #elif defined(PTHREADS)
 void task_control () {
-#elif defined(NXTOSEK)
-TASK(task_control) {
 #endif
   c_control_task(&control_control_input, &local_control_output);
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
   e_machine_go();
 #endif
 }
@@ -62,15 +60,13 @@ void driver_navigation_navigation_state_init_c_one () {
   c_one(&navigation_navigation_state);
 }
 
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
 TASK(task_navigation) {
 #elif defined(PTHREADS)
 void task_navigation () {
-#elif defined(NXTOSEK)
-TASK(task_navigation) {
 #endif
   c_navigation_task(&navigation_sensor_input, &navigation_navigation_state, &local_navigation_output);
-#ifdef OSEK
+#if defined(OSEK) || defined(NXTOSEK)
   e_machine_go();
 #endif
 }
@@ -120,8 +116,8 @@ trigger_type trigger_table[MAXTRIGGER] = {
 };
 
 task_type task_table[MAXTASK] = {
-  { "control", TaskMaintask_control },
-  { "navigation", TaskMaintask_navigation }
+  { "control", (int)TASKNAME(task_control) },
+  { "navigation", (int)TASKNAME(task_navigation) }
 };
 
 driver_type driver_table[MAXDRIVER] = {
