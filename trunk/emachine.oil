@@ -15,21 +15,30 @@ CPU ATMEL_AT91SAM7S256
 		USERESSCHEDULER = FALSE;
 	};
 
-	/* Definition of application mode */
-	APPMODE appmode1{}; 
+	/**************************************************************************/
+	/*             Application Modes                                          */
+	/**************************************************************************/
+	APPMODE appmode1{};
 
-  
+
+	/**************************************************************************/
+	/*             Tasks                                                      */
+	/**************************************************************************/
+
 	TASK e_machine_init {
 		SCHEDULE = NON;
 		PRIORITY = 1;
 		ACTIVATION = 1;
-		AUTOSTART = TRUE;
+		AUTOSTART = TRUE 
+		{
+			APPMODE = appmode1;
+		};
 		STACKSIZE = 2048;//changed from 2048
 	};
 
 	TASK e_machine_and_drivers {
 		SCHEDULE = NON;
-		PRIORITY = 2;
+		PRIORITY = 3;
 		ACTIVATION = 5;
 		AUTOSTART = FALSE;
 		STACKSIZE = 2048;
@@ -37,7 +46,7 @@ CPU ATMEL_AT91SAM7S256
 
 	TASK timer_code {
 		SCHEDULE = NON;
-		PRIORITY = 1;
+		PRIORITY = 2;
 		ACTIVATION = 1;
 		AUTOSTART = FALSE;
 		STACKSIZE = 2048;
@@ -99,12 +108,12 @@ CPU ATMEL_AT91SAM7S256
 		{
 			TASK = timer_code;
 		};
-		AUTOSTART = TRUE
-		{
-			ALARMTIME = 1;
-			CYCLETIME = 1000; //100msec
-			APPMODE = appmode1;
-		};
+//		AUTOSTART = TRUE
+//		{
+//			ALARMTIME = 1;
+//			CYCLETIME = 1; //1msec
+//			APPMODE = appmode1;
+//		};
 	};
 
 /*
@@ -174,11 +183,12 @@ CPU ATMEL_AT91SAM7S256
 		TICKSPERBASE = 1;
 		MINCYCLE = 1;
 	};
-
+/*
 	COUNTER SysTimerCnt
 	{
 		MINCYCLE = 1;
 		MAXALLOWEDVALUE = 10000;
 		TICKSPERBASE = 1; //One tick is equal to 1msec
 	};
+*/
 };

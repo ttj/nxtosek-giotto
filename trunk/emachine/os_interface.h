@@ -160,7 +160,7 @@ void os_pipe_create(char *pipe_name);
 
 #endif /* ifdef PTHREADS */
 
-DeclareCounter(SysTimerCnt);
+//DeclareCounter(SysTimerCnt);
 DeclareCounter(SYSTEM_COUNTER);
 DeclareTask(e_machine_init);
 DeclareTask(e_machine_and_drivers);

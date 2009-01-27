@@ -23,6 +23,7 @@ c_string local_control_output;
 void driver_control_output_init_c_empty_string () {
   c_empty_string(&global_control_output);
   c_empty_string(&local_control_output);
+  os_print_message("sensor init");
 }
 
 void driver_control_output_copy_c_string () {
@@ -35,6 +36,7 @@ c_int local_navigation_output;
 void driver_navigation_output_init_c_one () {
   c_one(&global_navigation_output);
   c_one(&local_navigation_output);
+  os_print_message("ctrl init");
 }
 
 void driver_navigation_output_copy_c_int () {
@@ -58,6 +60,7 @@ c_int navigation_navigation_state;
 
 void driver_navigation_navigation_state_init_c_one () {
   c_one(&navigation_navigation_state);
+  os_print_message("nav init");
 }
 
 #if defined(OSEK) || defined(NXTOSEK)

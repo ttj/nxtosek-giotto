@@ -34,8 +34,9 @@
 #ifdef OSEK
 
 void schedule_task(unsigned task_id, int priority) {
-  if (ActivateTask((int) task_table[task_id].schedule) != E_OK)
-    os_print_error("schedule_task: ActivateTask error");
+	if (ActivateTask((int) task_table[task_id].schedule) != E_OK) {
+		os_print_error("schedule_task: ActivateTask error");
+	}
 }
 
 unsigned is_task_finished(unsigned task_id) {
@@ -45,6 +46,7 @@ unsigned is_task_finished(unsigned task_id) {
 }
 
 void s_interface_init() {
+	return;
 }
 
 #elif defined(PTHREADS)
@@ -100,17 +102,24 @@ void s_interface_init() {
 #elif defined(NXTOSEK)
 
 void schedule_task(unsigned task_id, int priority) {
-  if (ActivateTask((int) task_table[task_id].schedule) != E_OK)
-    os_print_error("schedule_task: ActivateTask error");
+	if (ActivateTask((int) task_table[task_id].schedule) != E_OK) {
+		os_print_warning("schedule_task: ActivateTask error");
+	}
+#if defined(DEBUG_OSEK)
+	else {
+		os_print_message("ActivateTask");
+	}
+#endif
 }
 
 unsigned is_task_finished(unsigned task_id) {
-  // FIXME: enable runtime exceptions
+	// FIXME: enable runtime exceptions
 
-  return 1;
+	return 1;
 }
 
 void s_interface_init() {
+	return;
 }
 
 
