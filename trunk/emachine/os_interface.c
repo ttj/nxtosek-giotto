@@ -113,7 +113,10 @@ void os_print_message(char *message) {
 
   fflush(stdout);
 #elif defined(NXTOSEK)
-//todo
+      display_clear(0);
+      display_goto_xy(0, 0);
+      display_string(message);
+      display_update();
 
 #endif
 }
@@ -128,7 +131,10 @@ void os_print_warning(char *message) {
 
   fflush(stderr);
 #elif defined(NXTOSEK)
-//todo
+      display_clear(0);
+      display_goto_xy(0, 0);
+      display_string(message);
+      display_update();
 #endif
 }
 
@@ -146,7 +152,11 @@ void os_print_error(char *message) {
 
   exit(1);
 #elif defined(NXTOSEK)
-//todo
+      display_clear(0);
+      display_goto_xy(0, 0);
+      display_string(message);
+      display_update();
+	ShutdownOS(0);
 #endif
 }
 
@@ -301,7 +311,6 @@ void ecrobot_device_terminate()
 //LEJOS OSEK hook to be invoked from an ISR in category 2
 void user_1ms_isr_type2(void)
 {
-  int i=0;
   StatusType ercd;
 
   ercd = SignalCounter(SysTimerCnt); // Increment OSEK Alarm Counter
