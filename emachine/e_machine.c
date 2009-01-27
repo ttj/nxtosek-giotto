@@ -79,7 +79,6 @@ TASK(e_machine_and_drivers)
 void e_machine(int trigger_number)
 #endif
 {
-	int flipper=0;
 #if defined(OSEK) || defined(NXTOSEK)
   getTickCountLow(&last_system_time);
 
@@ -104,6 +103,7 @@ void e_machine(int trigger_number)
   }
 
   while (1) {
+	  os_print_message("Looping");
     // Resetting i can be avoided if already evaluated triggers cannot
     // become active later in the same reaction, see ordered halt
     // points for Esterel compilation.
@@ -288,16 +288,6 @@ void e_machine(int trigger_number)
   }
 
   if (get_logical_time() % 1000 == 0) {
-	  if (flipper==0) {
-		ecrobot_set_light_sensor_active(NXT_PORT_S4);
-		flipper=1;
-	  }
-	  else {
-		ecrobot_set_light_sensor_inactive(NXT_PORT_S4);
-		flipper=0;
-	  }
-
-
 
     // Print only every second
 /*    sprintf(text_message,
