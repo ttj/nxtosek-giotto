@@ -304,6 +304,8 @@ USER_INC_PATH = $(EMACHINEPATH) \
 
 O_PATH ?= ../build
 
+#BUILD_MODE = RXE_ONLY
+
 include ../../../ecrobot/ecrobot.mak
 
 else

@@ -46,6 +46,10 @@ asm void os_getTickCountLow(volatile unsigned int *timeL)
 }
 
 #elif defined(NXTOSEK)
+
+#define LINES_PER_SCREEN 8  //Lego NXT can fit 8 lines of text on its screen at a time
+volatile unsigned int last_line = 0; //last line that was displayed, go from 0 to LINES_PER_SCREEN
+
 void os_getTickCountLow(volatile unsigned int *timeL) {
 	//todo: get real interface to RTC for NXTOSEK
 	*timeL = 0;
@@ -60,6 +64,7 @@ void getTickCountLow(volatile unsigned int *timeL) {
 static HANDLE hstdin = 0;
 #endif
 
+//used to connect sensors to key
 unsigned os_key_event() {
 #ifdef __MINGW32__
   DWORD        peekRecordsRead;
@@ -98,7 +103,7 @@ unsigned os_key_event() {
 
   return size;
 #elif defined(NXTOSEK)
-//todo
+//todo: look up methods to interface to NXT buttons
 	return 0;
 #endif
 }
@@ -113,10 +118,14 @@ void os_print_message(char *message) {
 
   fflush(stdout);
 #elif defined(NXTOSEK)
+  if (last_line >= LINES_PER_SCREEN) {
       display_clear(0);
-      display_goto_xy(0, 0);
-      display_string(message);
-      display_update();
+      last_line=0;
+  }
+  display_goto_xy(0, last_line);
+  display_string(message);
+  display_update();
+  last_line++;
 
 #endif
 }
@@ -131,32 +140,40 @@ void os_print_warning(char *message) {
 
   fflush(stderr);
 #elif defined(NXTOSEK)
+  if (last_line >= LINES_PER_SCREEN) {
       display_clear(0);
-      display_goto_xy(0, 0);
-      display_string(message);
-      display_update();
+      last_line=0;
+  }
+  display_goto_xy(0, last_line);
+  display_string(message);
+  display_update();
+  last_line++;
 #endif
 }
 
 void os_print_error(char *message) {
 #ifdef OSEK
-  SerialSend(CHAN1, message, strlen(message));
+	SerialSend(CHAN1, message, strlen(message));
 
-  SerialSend(CHAN1, "\r\n", 1);
+	SerialSend(CHAN1, "\r\n", 1);
 
-  ShutdownOS(0);
-#elif defined(PTHREADS)
-  fprintf(stderr, "%s, errno: %d: %s\n", message, errno, strerror(errno));
-
-  fflush(stderr);
-
-  exit(1);
-#elif defined(NXTOSEK)
-      display_clear(0);
-      display_goto_xy(0, 0);
-      display_string(message);
-      display_update();
 	ShutdownOS(0);
+#elif defined(PTHREADS)
+	fprintf(stderr, "%s, errno: %d: %s\n", message, errno, strerror(errno));
+
+	fflush(stderr);
+
+	exit(1);
+#elif defined(NXTOSEK)
+	if (last_line >= LINES_PER_SCREEN) {
+		display_clear(0);
+		last_line=0;
+	}
+	display_goto_xy(0, last_line);
+	display_string(message);
+	display_update();
+	last_line++;
+//	ShutdownOS(0); //todo: reenable later
 #endif
 }
 
@@ -284,10 +301,6 @@ void os_pipe_create(char *pipe_name) {
 
 void ecrobot_device_initialize()
 {
-//	Serial_Driver_Install(CHAN1, SIOCPOLLED, 9600); //this looks like a uart (9600 baud)
-
-//	RtcInit(1000, SYSTEM_COUNTER);
-
 	nxt_motor_set_speed(NXT_PORT_A, 0, 1);
 	nxt_motor_set_speed(NXT_PORT_B, 0, 1);
 	nxt_motor_set_speed(NXT_PORT_C, 1, 1);
@@ -311,27 +324,25 @@ void ecrobot_device_terminate()
 //LEJOS OSEK hook to be invoked from an ISR in category 2
 void user_1ms_isr_type2(void)
 {
-  StatusType ercd;
+	StatusType ercd = E_OK;
 
-  ercd = SignalCounter(SysTimerCnt); // Increment OSEK Alarm Counter
-  if(ercd != E_OK)
-  {
-    ShutdownOS(ercd);
-  }
+//	ercd = SignalCounter(SysTimerCnt); // Increment OSEK Alarm Counter
+//	if(ercd != E_OK)
+//	{
+//		os_print_error("stc_kill");
+//		ShutdownOS(ercd);
+//	}
 
-  ercd = SignalCounter(SYSTEM_COUNTER);
-  if(ercd != E_OK)
-  {
-    ShutdownOS(ercd);
-  }
+	ercd = SignalCounter(SYSTEM_COUNTER);
+	if(ercd != E_OK)
+	{
+		os_print_error("sc_kill");
+		ShutdownOS(ercd);
+	}
 }
-
-
-
-
-
 
 #endif /* ifdef OSEK else */
 
 void os_interface_init() {
+	return;
 }

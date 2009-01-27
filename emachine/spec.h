@@ -33,6 +33,7 @@
 #define _SPEC_
 
 #define NXTOSEK
+#define DEBUG_OSEK
 
 #define MAXNAME 100  /* max char length for names */
 
