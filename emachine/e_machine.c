@@ -113,7 +113,7 @@ void e_machine(int trigger_number)
       if (e_schedule[i].trigger->is_active(e_schedule[i].state, e_schedule[i].parameter)) {
 
 		pc_emac = e_schedule[i].address;
-		os_print_message("inside");
+//		os_print_message("inside");
 
 		for(j = i; j < n_enabled_triggers-1; j++) {
 			e_schedule[j].trigger = e_schedule[j+1].trigger;
@@ -202,7 +202,8 @@ void e_machine(int trigger_number)
 
 				// schedule(Task,Annotation,Parameter)
 				case OPCODE_schedule: {
-					os_print_message("schedule");
+					os_print_message("scheduling_op: ");
+//					os_print_hex(arg1);
 					mask = 1 << arg1;
 
 					if (ready & mask) {
@@ -272,13 +273,13 @@ void e_machine(int trigger_number)
 	} // fixed-point while
 
 #if defined(OSEK) || defined(NXTOSEK)
-  getTickCountLow(&current_system_time);
+	getTickCountLow(&current_system_time);
 
-  e_execution_time = e_execution_time + current_system_time - last_system_time;
+	e_execution_time = e_execution_time + current_system_time - last_system_time;
 #endif
 
-  highest_priority = -1;
-  highest_priority_task = -1;
+	highest_priority = -1;
+	highest_priority_task = -1;
 
 	for(i = 0, mask = 1; i < MAXTASK; i++) {
 		if (schedule & mask) {
@@ -289,6 +290,11 @@ void e_machine(int trigger_number)
 					highest_priority = priority;
 
 					highest_priority_task = i;
+
+#ifdef DEBUG_OSEK
+//					os_print_message("hp task: ");
+//					os_print_hex(highest_priority_task);
+#endif
 				}
 			}
 		}
@@ -297,7 +303,8 @@ void e_machine(int trigger_number)
 
 	if (highest_priority_task != -1) {
 		schedule = schedule & ~(1 << highest_priority_task);
-
+		os_print_hex(highest_priority_task);
+		os_print_hex(schedule);
 		schedule_task(highest_priority_task, highest_priority);
 	}
 

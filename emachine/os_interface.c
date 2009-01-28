@@ -119,11 +119,29 @@ void os_print_message(char *message) {
   fflush(stdout);
 #elif defined(NXTOSEK)
   if (last_line >= LINES_PER_SCREEN) {
+//	  for (int i=0; i<10000;i++); //small wait
       display_clear(0);
       last_line=0;
   }
   display_goto_xy(0, last_line);
   display_string(message);
+  display_update();
+  last_line++;
+
+#endif
+}
+
+void os_print_hex(unsigned int message) {
+#ifdef OSEK
+#elif defined(PTHREADS)
+#elif defined(NXTOSEK)
+  if (last_line >= LINES_PER_SCREEN) {
+//	  for (int i=0; i<10000;i++); //small wait
+      display_clear(0);
+      last_line=0;
+  }
+  display_goto_xy(0, last_line);
+  display_hex(message, 12); //show 12 bits
   display_update();
   last_line++;
 
@@ -141,6 +159,7 @@ void os_print_warning(char *message) {
   fflush(stderr);
 #elif defined(NXTOSEK)
   if (last_line >= LINES_PER_SCREEN) {
+//	  for (int i=0; i<10000;i++); //small wait
       display_clear(0);
       last_line=0;
   }
@@ -166,6 +185,7 @@ void os_print_error(char *message) {
 	exit(1);
 #elif defined(NXTOSEK)
 	if (last_line >= LINES_PER_SCREEN) {
+//		for (int i=0; i<10000;i++); //small wait
 		display_clear(0);
 		last_line=0;
 	}
@@ -173,7 +193,7 @@ void os_print_error(char *message) {
 	display_string(message);
 	display_update();
 	last_line++;
-//	ShutdownOS(0); //todo: reenable later
+	ShutdownOS(0); //todo: reenable later
 #endif
 }
 

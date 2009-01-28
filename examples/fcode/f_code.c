@@ -96,7 +96,7 @@ void c_control_task(c_int *average, c_string *display) {
 	int dummy = 7;
 	char *s=*display;
 
-	os_print_message("\t\tControl task begins");
+//	os_print_message("\t\tControl task begins");
 
 	for(i=0;i<*average;i++) {
 		*s++ = '-';
@@ -109,14 +109,14 @@ void c_control_task(c_int *average, c_string *display) {
 	//	dummy = (dummy * dummy) % 100;
 	//}
 
-	os_print_message("\t\tControl task ends");
+//	os_print_message("\t\tControl task ends");
 }
 
 void c_navigation_task(c_int *in, c_int *state, c_int *out) {
 	unsigned i;
 	int dummy = 7;
 
-	os_print_message("\t\tNavigation task begins");
+//	os_print_message("\t\tNavigation task begins");
 
 	*out = (*in+*state)/2;
 
@@ -125,7 +125,7 @@ void c_navigation_task(c_int *in, c_int *state, c_int *out) {
 	//	dummy = (dummy * dummy) % 100;
 	//}
 
-	os_print_message("\t\tNavigation task ends");
+//	os_print_message("\t\tNavigation task ends");
 }
 
 unsigned c_true() {
