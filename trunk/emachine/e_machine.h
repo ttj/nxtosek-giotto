@@ -34,6 +34,8 @@
 #define _E_MACHINE_
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <math.h>
 
 #include "e_interface.h"

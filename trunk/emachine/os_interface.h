@@ -65,6 +65,7 @@ unsigned os_key_event();
 void os_print_message(char *message);
 void os_print_warning(char *message);
 void os_print_error(char *message);
+void os_print_hex(unsigned int message);
 void getTickCountLow(volatile unsigned int *timeL);
 
 #ifdef PTHREADS

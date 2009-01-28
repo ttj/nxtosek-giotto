@@ -25,6 +25,22 @@ CPU ATMEL_AT91SAM7S256
 	/*             Tasks                                                      */
 	/**************************************************************************/
 
+	TASK task_control {
+		SCHEDULE = FULL;
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		AUTOSTART = FALSE;
+		STACKSIZE = 2048;
+	};
+
+	TASK task_navigation {
+		SCHEDULE = FULL;
+		PRIORITY = 1;
+		ACTIVATION = 1;
+		AUTOSTART = FALSE;
+		STACKSIZE = 2048;
+	};
+
 	TASK e_machine_init {
 		SCHEDULE = NON;
 		PRIORITY = 1;
@@ -47,23 +63,6 @@ CPU ATMEL_AT91SAM7S256
 	TASK timer_code {
 		SCHEDULE = NON;
 		PRIORITY = 2;
-		ACTIVATION = 1;
-		AUTOSTART = FALSE;
-		STACKSIZE = 2048;
-	};
-
-
-	TASK task_control {
-		SCHEDULE = FULL;
-		PRIORITY = 1;
-		ACTIVATION = 1;
-		AUTOSTART = FALSE;
-		STACKSIZE = 2048;
-	};
-
-	TASK task_navigation {
-		SCHEDULE = FULL;
-		PRIORITY = 1;
 		ACTIVATION = 1;
 		AUTOSTART = FALSE;
 		STACKSIZE = 2048;
