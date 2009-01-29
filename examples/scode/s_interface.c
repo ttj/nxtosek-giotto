@@ -109,7 +109,7 @@ void schedule_task(unsigned task_id, int priority) {
 	//switch (ActivateTask((int) task_table[task_id].schedule)) {
 		//No error
 		case E_OK: {
-			os_print_message("sched: ok");
+//			os_print_message("sched: ok");
 			break;
 		}
 		//Too many task activations of <TaskID>
@@ -120,8 +120,8 @@ void schedule_task(unsigned task_id, int priority) {
 		//Task <TaskID> is invalid
 		case E_OS_ID: {
 			os_print_error("sched: task id");
-			os_print_hex(task_id);
-			os_print_hex((int)task_table[task_id].schedule);
+//			os_print_hex(task_id);
+//			os_print_hex((int)task_table[task_id].schedule);
 			break;
 		}
 		default: {

@@ -34,6 +34,7 @@
 #define _F_SPEC_
 
 #include "spec.h"
+#include "kernel.h"
 
 /* -------------------------------------------------------------------
  *
@@ -80,6 +81,7 @@ typedef int task_code_type;
 typedef struct {
   char name[MAXNAME];
   task_code_type schedule;
+  TaskType taskid;
 } task_type;
 
 /* -------------------------------------------------------------------

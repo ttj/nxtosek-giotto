@@ -121,9 +121,9 @@ void c_navigation_task(c_int *in, c_int *state, c_int *out) {
 	*out = (*in+*state)/2;
 
 	// To trigger deadline violation uncomment for loop
-	//for(i=0;i<17000000;i++) {
-	//	dummy = (dummy * dummy) % 100;
-	//}
+	for(i=0;i<170000;i++) {
+		dummy = (dummy * dummy) % 100;
+	}
 
 //	os_print_message("\t\tNavigation task ends");
 }

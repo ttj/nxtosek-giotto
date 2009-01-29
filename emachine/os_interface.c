@@ -47,8 +47,36 @@ asm void os_getTickCountLow(volatile unsigned int *timeL)
 
 #elif defined(NXTOSEK)
 
-#define LINES_PER_SCREEN 8  //Lego NXT can fit 8 lines of text on its screen at a time
-volatile unsigned int last_line = 0; //last line that was displayed, go from 0 to LINES_PER_SCREEN
+#define MAX_NUM_OF_CHAR		16	// LCD maximum x
+#define MAX_NUM_OF_LINE		8	// LCD maximum y
+
+static unsigned int pos_x = 0;	// LCD last x position
+static unsigned int pos_y = 0;	// LCD last y position
+
+void nxt_print_message(char* message) {
+	if (pos_x >= MAX_NUM_OF_CHAR)
+	{
+		pos_x = 0;
+		pos_y++;
+	}
+
+	if (pos_y >= MAX_NUM_OF_LINE)
+	{
+		pos_x = 0;
+		pos_y = 0;
+	}
+
+	if (pos_x == 0 && pos_y == 0)
+	{
+		display_clear(0);
+	}
+	display_goto_xy(pos_x, pos_y);
+
+	display_goto_xy(pos_x, pos_y);
+	display_string(message);
+	display_update();
+	pos_y++;
+}
 
 void os_getTickCountLow(volatile unsigned int *timeL) {
 	//todo: get real interface to RTC for NXTOSEK
@@ -103,7 +131,7 @@ unsigned os_key_event() {
 
   return size;
 #elif defined(NXTOSEK)
-//todo: look up methods to interface to NXT buttons
+//todo: look up methods to interface to NXT buttons via nxtOSEK
 	return 0;
 #endif
 }
@@ -118,15 +146,7 @@ void os_print_message(char *message) {
 
   fflush(stdout);
 #elif defined(NXTOSEK)
-  if (last_line >= LINES_PER_SCREEN) {
-//	  for (int i=0; i<10000;i++); //small wait
-      display_clear(0);
-      last_line=0;
-  }
-  display_goto_xy(0, last_line);
-  display_string(message);
-  display_update();
-  last_line++;
+	nxt_print_message(message);
 
 #endif
 }
@@ -135,15 +155,15 @@ void os_print_hex(unsigned int message) {
 #ifdef OSEK
 #elif defined(PTHREADS)
 #elif defined(NXTOSEK)
-  if (last_line >= LINES_PER_SCREEN) {
+  if (pos_y >= MAX_NUM_OF_LINE) {
 //	  for (int i=0; i<10000;i++); //small wait
       display_clear(0);
-      last_line=0;
+      pos_y=0;
   }
-  display_goto_xy(0, last_line);
+  display_goto_xy(pos_x, pos_y);
   display_hex(message, 12); //show 12 bits
   display_update();
-  last_line++;
+  pos_y++;
 
 #endif
 }
@@ -158,15 +178,7 @@ void os_print_warning(char *message) {
 
   fflush(stderr);
 #elif defined(NXTOSEK)
-  if (last_line >= LINES_PER_SCREEN) {
-//	  for (int i=0; i<10000;i++); //small wait
-      display_clear(0);
-      last_line=0;
-  }
-  display_goto_xy(0, last_line);
-  display_string(message);
-  display_update();
-  last_line++;
+	nxt_print_message(message);
 #endif
 }
 
@@ -184,16 +196,8 @@ void os_print_error(char *message) {
 
 	exit(1);
 #elif defined(NXTOSEK)
-	if (last_line >= LINES_PER_SCREEN) {
-//		for (int i=0; i<10000;i++); //small wait
-		display_clear(0);
-		last_line=0;
-	}
-	display_goto_xy(0, last_line);
-	display_string(message);
-	display_update();
-	last_line++;
-	ShutdownOS(0); //todo: reenable later
+	nxt_print_message(message);
+	ShutdownOS(0);
 #endif
 }
 
