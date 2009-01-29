@@ -118,9 +118,9 @@ trigger_type trigger_table[MAXTRIGGER] = {
   { "giotto_timer", giotto_timer_enable_code, giotto_timer_save_code, giotto_timer_trigger_code }
 };
 
-task_type task_table[MAXTASK] = {
-  { "control", (int)TASKNAME(task_control) },
-  { "navigation", (int)TASKNAME(task_navigation) }
+const task_type task_table[MAXTASK] = {
+  { "control", (int)TASKNAME(task_control), 0 },
+  { "navigation", (int)TASKNAME(task_navigation), 1 }
 };
 
 driver_type driver_table[MAXDRIVER] = {

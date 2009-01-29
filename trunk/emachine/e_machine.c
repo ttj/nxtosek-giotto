@@ -303,8 +303,8 @@ void e_machine(int trigger_number)
 
 	if (highest_priority_task != -1) {
 		schedule = schedule & ~(1 << highest_priority_task);
-		os_print_hex(highest_priority_task);
-		os_print_hex(schedule);
+//		os_print_hex(highest_priority_task);
+//		os_print_hex(schedule);
 		schedule_task(highest_priority_task, highest_priority);
 	}
 
