@@ -306,7 +306,7 @@ O_PATH ?= ../build
 
 #BUILD_MODE = RXE_ONLY
 
-include ../../../ecrobot/ecrobot.mak
+include ../../../../ecrobot/ecrobot.mak
 
 else
 
