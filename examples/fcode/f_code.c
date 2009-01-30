@@ -34,16 +34,19 @@
 #include <string.h>
 
 void c_connect_sensor_to_return_key(c_bool *sensor) {
-	*sensor = os_key_event();
+	//*sensor = os_key_event();
+	*sensor = ecrobot_get_light_sensor(NXT_PORT_S1);
 
 	os_print_message("sensor value (ret)");
+	os_print_hex((int)*sensor);
 }
 
 void c_connect_sensor_to_random_generator(c_int *sensor) {
   unsigned i, text_message_length;
 
 #if defined(OSEK) || defined(NXTOSEK)
-  *sensor = (*sensor + 1) % 10;
+  //*sensor = (*sensor + 1) % 10;
+  *sensor = ecrobot_get_light_sensor(NXT_PORT_S1);
 #else
   *sensor = 1 + (int)(MAXDISPLAY*(double)rand()/(RAND_MAX+1.0));
 #endif
@@ -60,6 +63,7 @@ void c_connect_sensor_to_random_generator(c_int *sensor) {
 
 //  os_print_message(text_message);
 	os_print_message("sensor value (rand)");
+	os_print_hex((int)*sensor);
 }
 
 void c_connect_actuator_to_display(c_string *string) {
