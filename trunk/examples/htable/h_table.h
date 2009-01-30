@@ -3,7 +3,7 @@
 #ifndef _H_TABLE_
 #define _H_TABLE_
 
-#include "h_spec.h" 
+#include "h_spec.h"
 
 #ifdef DISTRIBUTED
 #include "h_code.h"

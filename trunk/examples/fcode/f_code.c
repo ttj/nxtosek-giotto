@@ -95,6 +95,10 @@ void copy_c_int(c_int *integer_source, c_int *integer_dest) {
 	*integer_dest=*integer_source;
 }
 
+void copy_c_bool(c_bool *bool_source, c_bool *bool_dest) {
+	*bool_dest=*bool_source;
+}
+
 void c_control_task(c_int *average, c_string *display) {
 	unsigned i;
 	int dummy = 7;
@@ -132,6 +136,48 @@ void c_navigation_task(c_int *in, c_int *state, c_int *out) {
 //	os_print_message("\t\tNavigation task ends");
 }
 
+
+
+
+
+
+void c_guard_task(c_bool intrusion, c_bool portIntrusion) {
+	//check if an intruder is coming in
+	os_print_message("guarding" );
+	return;
+}
+
+void c_search_task(c_bool found, c_bool stateFound, c_bool portFound) {
+	//find the intruder
+	os_print_message("searching");
+	return;
+}
+
+void c_get_light_sensor(c_int* val) {
+	val=ecrobot_get_light_sensor(NXT_PORT_S1); //todo: make dynamic
+	os_print_hex(val);
+}
+
+void c_get_sonar_sensor(c_int* val) {
+	val=ecrobot_get_sonar_sensor(NXT_PORT_S4); //todo: make dynamic
+	os_print_hex(val);
+}
+
+
+void c_set_motor_sonar_speed(c_int* speed) {
+	nxt_motor_set_speed(NXT_PORT_A, speed, 1);
+}
+
+
+
+void c_zero(c_int *integer) {
+	*integer=0;
+}
+
+unsigned c_false() {
+	return 0;
+}
+
 unsigned c_true() {
 	return 1;
 }
@@ -156,6 +202,18 @@ void c_switch_undeclared_mode() {
 
 void c_int_to_int(c_int *integer_source, c_int *integer_dest) {
 	copy_c_int(integer_source, integer_dest);
+}
+
+void c_bool_to_bool(c_int *bool_source, c_int *bool_dest) {
+	copy_c_bool(bool_source, bool_dest);
+}
+
+unsigned c_ready_to_search(c_bool *intrusion) {
+	return *intrusion;
+}
+
+unsigned c_ready_to_guard(c_bool *found) {
+	return *found;
 }
 
 void giotto_timer_enable_code(e_machine_type e_machine_func, int relative_time) {

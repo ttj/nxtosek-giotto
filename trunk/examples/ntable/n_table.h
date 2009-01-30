@@ -3,7 +3,7 @@
 #ifndef _N_TABLE_
 #define _N_TABLE_
 
-#include "n_spec.h" 
+#include "n_spec.h"
 
 #ifdef DISTRIBUTED
 #include "n_code.h"

@@ -8,77 +8,104 @@ Intrusion Detection
 ////                         sensors                                 ////
 
 sensor
-	real_port	portLight	uses	getLight;
-	real_port	portSonar	uses	getSonar;
+	c_int	portLight	uses	c_get_light_sensor;
+	c_int	portSonar	uses	c_get_sonar_sensor;
 
 /////////////////////////////////////////////////////////////////////////
 ////                         actuators                               ////
 
 actuator
-	real_port	portMotorSonar	uses	setMotorSpeed;
+	c_int	actMotorSonar	uses	c_set_motor_sonar_speed;	
 
 /////////////////////////////////////////////////////////////////////////
 ////                        output ports                             ////
 
 output
-	bool_port	portFound	:= false;	//has an intruder been found (location)?
-	bool_port	portIntrusion	:= false;	//has an intruder been detected (past boundary)?
-	real_port	portAngle	:= real_zero;	//motor current angle (
-	real_port	portDistance	:= real_zero;	//distance to target
+	c_int 	portMotorSonar	:= c_zero;
+	c_bool	portFound	:= c_false;	//has an intruder been found (location)?
+	c_bool	portIntrusion	:= c_false;	//has an intruder been detected (past boundary)?
+	c_int	portAngle	:= c_zero;	//motor current angle (
+	c_int	portDistance	:= c_zero;	//distance to target
 
 /////////////////////////////////////////////////////////////////////////
 ////                         tasks                                   ////
 
-task guardTask(bool_port intrusion)
+task guardTask(c_bool intrusion)
 	output (portIntrusion) state () {
-		schedule guard()
+		schedule c_guard_task(intrusion, portIntrusion)
 }
 
-task searchTask(bool_port found)
-	output (portFound) state () {
-		schedule search()
+task searchTask(c_bool found)
+	output (portFound) state (c_bool statefound := c_false) {
+		schedule c_search_task(found, statefound, portFound)
 }
 
 /////////////////////////////////////////////////////////////////////////
 ////                    actuator drivers                             ////
-
-
-driver driverSonarMotor(portAngle)
-	output (real_port portMotorSpeed) {
-    if constant_true() then ecrobotor_set_motor_speed()
+driver driverSonarMotor(portMotorSonar)
+	output (c_int motorSonar) {
+    if c_true() then c_int_to_int(portMotorSonar, motorSonar)
 }
-
 
 /////////////////////////////////////////////////////////////////////////
 ////                    input drivers                                ////
 
+driver driverIntrusionStatus (portIntrusion)
+	output (c_bool intrusionValue) {
+	if c_true() then
+		c_bool_to_bool(portIntrusion, intrusionValue)
+}
+
+driver driverFoundStatus (portFound)
+	output (c_bool foundValue) {
+	if c_true() then
+		c_bool_to_bool(portFound, foundValue)
+}
+
 driver driverLightStatus (portLight)
-	output (real_port lightValue) {
-	if constant_true() then
-		copy_real_port(lightValue, portLight)
+	output (c_int lightValue) {
+	if c_true() then
+		c_int_to_int(portLight, lightValue)
 }
 
 driver driverSonarStatus (portAngle, portDistance)
-       output (real_port angleValue, real_port distanceValue) {
-    if constant_true() then
-       copy_real_port2(angleValue, distanceValue, portAngle, portDistance)
+       output (c_int angleValue, c_int distanceValue) {
+    if c_true() then
+       c_int_to_int(portAngle, portDistance, angleValue, distanceValue)
 }
 
 /////////////////////////////////////////////////////////////////////////
 ////                    mode switch drivers                          ////
 
-driver driverGuardToSearch (portIntrusion) 
-	output () {
-	if readyToSearch() then dummy()
+driver driverGuardToSearch(portIntrusion) 
+	output (c_int intrusion_state) {
+	if c_ready_to_search(portIntrusion) then c_switch_mode(intrusion_state)
 }
+
+driver driverSearchToGuard(portFound) 
+	output (c_int found_state) {
+	if c_ready_to_guard(portFound) then c_switch_mode(found_state)
+}
+
 
 start guard {
 
-    mode guard() period 50 {
+	mode guard(portMotorSonar) period 8000 {
+		actfreq 1 do actMotorSonar(driverSonarMotor);
 
-    }
+		exitfreq 2 do search(driverGuardToSearch);
 
-    mode search() period 1000 {
+		taskfreq 10 do guardTask(driverIntrusionStatus);
+		taskfreq 1 do searchTask(driverFoundStatus);
+	}
 
-    }
+	mode search(portMotorSonar) period 8000 {
+		actfreq 1 do actMotorSonar(driverSonarMotor);
+
+		exitfreq 1 do guard(driverSearchToGuard);
+
+		taskfreq 10 do guardTask(driverIntrusionStatus);
+		taskfreq 1 do searchTask(driverFoundStatus);
+	}
 }
+

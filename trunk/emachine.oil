@@ -25,7 +25,7 @@ CPU ATMEL_AT91SAM7S256
 	/*             Tasks                                                      */
 	/**************************************************************************/
 
-	TASK task_control {
+	TASK task_guardTask {
 		SCHEDULE = FULL;
 		PRIORITY = 1;
 		ACTIVATION = 1;
@@ -33,7 +33,7 @@ CPU ATMEL_AT91SAM7S256
 		STACKSIZE = 2048;
 	};
 
-	TASK task_navigation {
+	TASK task_searchTask {
 		SCHEDULE = FULL;
 		PRIORITY = 1;
 		ACTIVATION = 1;
