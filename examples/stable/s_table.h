@@ -3,7 +3,7 @@
 #ifndef _S_TABLE_
 #define _S_TABLE_
 
-#include "s_spec.h" 
+#include "s_spec.h"
 #include "s_code.h"
 
 #define MAXANNOTATION 1  /* max number of annotations */

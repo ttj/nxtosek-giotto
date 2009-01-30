@@ -45,6 +45,38 @@ typedef unsigned c_bool;
 
 typedef char c_string[MAXDISPLAY];
 
+
+
+
+
+
+
+
+
+
+
+
+void c_guard_task(c_bool intrusion, c_bool portIntrusion);
+
+void c_search_task(c_bool found, c_bool stateFound, c_bool portFound);
+
+void c_get_light_sensor(c_int* val);
+
+void c_get_sonar_sensor(c_int* val);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void c_connect_sensor_to_return_key(c_bool *);
 
 void c_connect_sensor_to_random_generator(c_int *);
@@ -57,7 +89,14 @@ void copy_c_string(c_string *, c_string *);
 
 void c_one(c_int *);
 
+void c_zero(c_int *);
+
+void c_set_motor_sonar_speed(c_int* speed);
+
+
 void copy_c_int(c_int *, c_int *);
+
+void copy_c_bool(c_bool *bool_source, c_bool *bool_dest);
 
 void c_control_task(c_int *, c_string *);
 
@@ -65,15 +104,23 @@ void c_navigation_task(c_int *, c_int *, c_int *);
 
 unsigned c_true();
 
+unsigned c_false();
+
 void c_string_to_string(c_string *, c_string *);
 
 unsigned c_key_pressed(c_bool *);
+
+unsigned c_ready_to_guard(c_bool *found);
+
+unsigned c_ready_to_search(c_bool *found);
 
 void c_switch_mode(c_int *);
 
 void c_switch_undeclared_mode();
 
 void c_int_to_int(c_int *, c_int *);
+
+void c_bool_to_bool(c_int *, c_int *);
 
 void giotto_timer_enable_code(e_machine_type, int);
 

@@ -9,7 +9,7 @@ OIL_VERSION = "2.0";
 #include <ppcmotevb555.oil>
 
 CPU ETC {
-   
+
    /**************************************************************************/
    /*             Tasks                                                      */
    /**************************************************************************/
@@ -44,7 +44,7 @@ CPU ETC {
            SCHEDULE_CALL = FALSE;
    };
 
-   TASK task_control {
+   TASK task_guardTask {
            TYPE = BASIC;
            SCHEDULE = FULL;
            PRIORITY = 0;
@@ -54,7 +54,7 @@ CPU ETC {
            SCHEDULE_CALL = FALSE;
    };
 
-   TASK task_navigation {
+   TASK task_searchTask {
            TYPE = BASIC;
            SCHEDULE = FULL;
            PRIORITY = 0;

@@ -168,6 +168,8 @@ DeclareTask(e_machine_and_drivers);
 DeclareTask(timer_code);
 DeclareTask(task_control);
 DeclareTask(task_navigation);
+DeclareTask(task_searchTask);
+DeclareTask(task_guardTask);
 DeclareAlarm(TimerAlarm);
 //DeclareEvent(TouchSensorOnEvent);
 //DeclareEvent(TouchSensorOffEvent);

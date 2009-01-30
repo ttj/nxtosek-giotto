@@ -2,161 +2,199 @@
 
 #include "f_table.h"
 
-c_bool key_sensor;
-void driver_key_sensor_c_connect_sensor_to_return_key () {
-  c_connect_sensor_to_return_key(&key_sensor);
-}
-
-c_int random_sensor;
-void driver_random_sensor_c_connect_sensor_to_random_generator () {
-  c_connect_sensor_to_random_generator(&random_sensor);
-}
-
-c_string display_actuator;
-void driver_display_actuator_c_connect_actuator_to_display () {
-  c_connect_actuator_to_display(&display_actuator);
-}
-
-c_string global_control_output;
-c_string local_control_output;
-
-void driver_control_output_init_c_empty_string () {
-  c_empty_string(&global_control_output);
-  c_empty_string(&local_control_output);
-  os_print_message("sensor init");
-}
-
-void driver_control_output_copy_c_string () {
-  copy_c_string(&local_control_output, &global_control_output);
-}
-
-c_int global_navigation_output;
-c_int local_navigation_output;
-
-void driver_navigation_output_init_c_one () {
-  c_one(&global_navigation_output);
-  c_one(&local_navigation_output);
-  os_print_message("ctrl init");
-}
-
-void driver_navigation_output_copy_c_int () {
-  copy_c_int(&local_navigation_output, &global_navigation_output);
-}
-
-c_int control_control_input;
-#if defined(OSEK) || defined(NXTOSEK)
-TASK(task_control) {
-#elif defined(PTHREADS)
-void task_control () {
-#endif
-  c_control_task(&control_control_input, &local_control_output);
-#if defined(OSEK) || defined(NXTOSEK)
-  e_machine_go();
-#endif
-}
-
-c_int navigation_sensor_input;
-c_int navigation_navigation_state;
-
-void driver_navigation_navigation_state_init_c_one () {
-  c_one(&navigation_navigation_state);
-  os_print_message("nav init");
-}
-
-#if defined(OSEK) || defined(NXTOSEK)
-TASK(task_navigation) {
-#elif defined(PTHREADS)
-void task_navigation () {
-#endif
-  c_navigation_task(&navigation_sensor_input, &navigation_navigation_state, &local_navigation_output);
-#if defined(OSEK) || defined(NXTOSEK)
-  e_machine_go();
-#endif
-}
-
-unsigned condition_display_actuator_display_driver () {
-  return c_true();
-}
-
-void driver_display_actuator_display_driver () {
-  c_string_to_string(&global_control_output, &display_actuator);
-}
-
-unsigned condition_degraded_key_pressed () {
-  return c_key_pressed(&key_sensor);
-}
-
-void driver_degraded_key_pressed () {
-  c_switch_mode(&global_navigation_output);
-}
-
-unsigned condition_control_control_driver () {
-  return c_true();
-}
-
-void driver_control_control_driver () {
-  c_int_to_int(&global_navigation_output, &control_control_input);
-}
-
-unsigned condition_navigation_navigation_driver () {
-  return c_true();
-}
-
-void driver_navigation_navigation_driver () {
-  c_int_to_int(&random_sensor, &navigation_sensor_input);
-}
-
-unsigned condition_normal_key_pressed () {
-  return c_key_pressed(&key_sensor);
-}
-
-void driver_normal_key_pressed () {
-  c_switch_mode(&global_navigation_output);
-}
-
 trigger_type trigger_table[MAXTRIGGER] = {
   { "giotto_timer", giotto_timer_enable_code, giotto_timer_save_code, giotto_timer_trigger_code }
 };
 
-const task_type task_table[MAXTASK] = {
-  { "control", (int)TASKNAME(task_control), 0 },
-  { "navigation", (int)TASKNAME(task_navigation), 1 }
-};
-
-driver_type driver_table[MAXDRIVER] = {
-  { "key_sensor_c_connect_sensor_to_return_key", driver_key_sensor_c_connect_sensor_to_return_key, 0 },
-  { "random_sensor_c_connect_sensor_to_random_generator", driver_random_sensor_c_connect_sensor_to_random_generator, 0 },
-  { "display_actuator_c_connect_actuator_to_display", driver_display_actuator_c_connect_actuator_to_display, 0 },
-  { "control_output_init_c_empty_string", driver_control_output_init_c_empty_string, 1 },
-  { "control_output_copy_c_string", driver_control_output_copy_c_string, 1 },
-  { "navigation_output_init_c_one", driver_navigation_output_init_c_one, 2 },
-  { "navigation_output_copy_c_int", driver_navigation_output_copy_c_int, 2 },
-  { "navigation_navigation_state_init_c_one", driver_navigation_navigation_state_init_c_one, 2 },
-  { "display_actuator_display_driver", driver_display_actuator_display_driver, 0 },
-  { "degraded_key_pressed", driver_degraded_key_pressed, 0 },
-  { "control_control_driver", driver_control_control_driver, 1 },
-  { "navigation_navigation_driver", driver_navigation_navigation_driver, 2 },
-  { "normal_key_pressed", driver_normal_key_pressed, 0 }
-};
-
-condition_type condition_table[MAXCONDITION] = {
-  { "display_actuator_display_driver", condition_display_actuator_display_driver, 0 },
-  { "degraded_key_pressed", condition_degraded_key_pressed, 0 },
-  { "control_control_driver", condition_control_control_driver, 0 },
-  { "navigation_navigation_driver", condition_navigation_navigation_driver, 0 },
-  { "normal_key_pressed", condition_normal_key_pressed, 0 }
-};
+c_int portLight;
+c_int portSonar;
+c_int actMotorSonar;
+c_int global_portMotorSonar;
+c_int local_portMotorSonar;
+c_bool global_portFound;
+c_bool local_portFound;
+c_bool global_portIntrusion;
+c_bool local_portIntrusion;
+c_int global_portAngle;
+c_int local_portAngle;
+c_int global_portDistance;
+c_int local_portDistance;
+c_bool guardTask_intrusion;
+c_bool searchTask_found;
+c_bool searchTask_statefound;
 
 port_type port_table[MAXPORT] = {
-  { "key_sensor", &key_sensor, sizeof(c_bool) },
-  { "random_sensor", &random_sensor, sizeof(c_int) },
-  { "display_actuator", &display_actuator, sizeof(c_string) },
-  { "global_control_output", &global_control_output, sizeof(c_string) },
-  { "local_control_output", &local_control_output, sizeof(c_string) },
-  { "global_navigation_output", &global_navigation_output, sizeof(c_int) },
-  { "local_navigation_output", &local_navigation_output, sizeof(c_int) },
-  { "control_control_input", &control_control_input, sizeof(c_int) },
-  { "navigation_sensor_input", &navigation_sensor_input, sizeof(c_int) },
-  { "navigation_navigation_state", &navigation_navigation_state, sizeof(c_int) }
+  { "portLight", &portLight, sizeof(c_int) },
+  { "portSonar", &portSonar, sizeof(c_int) },
+  { "actMotorSonar", &actMotorSonar, sizeof(c_int) },
+  { "global_portMotorSonar", &global_portMotorSonar, sizeof(c_int) },
+  { "local_portMotorSonar", &local_portMotorSonar, sizeof(c_int) },
+  { "global_portFound", &global_portFound, sizeof(c_bool) },
+  { "local_portFound", &local_portFound, sizeof(c_bool) },
+  { "global_portIntrusion", &global_portIntrusion, sizeof(c_bool) },
+  { "local_portIntrusion", &local_portIntrusion, sizeof(c_bool) },
+  { "global_portAngle", &global_portAngle, sizeof(c_int) },
+  { "local_portAngle", &local_portAngle, sizeof(c_int) },
+  { "global_portDistance", &global_portDistance, sizeof(c_int) },
+  { "local_portDistance", &local_portDistance, sizeof(c_int) },
+  { "guardTask_intrusion", &guardTask_intrusion, sizeof(c_bool) },
+  { "searchTask_found", &searchTask_found, sizeof(c_bool) },
+  { "searchTask_statefound", &searchTask_statefound, sizeof(c_bool) }
+};
+
+
+#if defined(OSEK) || defined(NXTOSEK)
+TASK(task_guardTask) {
+#elif defined(PTHREADS)
+void task_guardTask () {
+#endif
+  c_guard_task(&guardTask_intrusion,&local_portIntrusion);
+#if defined(OSEK) || defined(NXTOSEK)
+  e_machine_go();
+#endif
+}
+
+#if defined(OSEK) || defined(NXTOSEK)
+TASK(task_searchTask) {
+#elif defined(PTHREADS)
+void task_searchTask () {
+#endif
+  c_search_task(&searchTask_found,&searchTask_statefound,&local_portFound);
+#if defined(OSEK) || defined(NXTOSEK)
+  e_machine_go();
+#endif
+}
+
+task_type task_table[MAXTASK] = {
+  { "guardTask", (int)TASKNAME(task_guardTask) },
+  { "searchTask", (int)TASKNAME(task_searchTask) }
+};
+
+
+void driver_portLight_c_get_light_sensor () {
+  c_get_light_sensor(&portLight);
+}
+
+void driver_portSonar_c_get_sonar_sensor () {
+  c_get_sonar_sensor(&portSonar);
+}
+
+void driver_actMotorSonar_c_set_motor_sonar_speed () {
+  c_set_motor_sonar_speed(&actMotorSonar);
+}
+
+void driver_portMotorSonar_init_c_zero () {
+  c_zero(&local_portMotorSonar);
+}
+
+void driver_portMotorSonar_copy_c_int () {
+  copy_c_int(&local_portMotorSonar,&global_portMotorSonar);
+}
+
+void driver_portFound_init_c_false () {
+  c_false(&local_portFound);
+}
+
+void driver_portFound_copy_c_bool () {
+  copy_c_bool(&local_portFound,&global_portFound);
+}
+
+void driver_portIntrusion_init_c_false () {
+  c_false(&local_portIntrusion);
+}
+
+void driver_portIntrusion_copy_c_bool () {
+  copy_c_bool(&local_portIntrusion,&global_portIntrusion);
+}
+
+void driver_portAngle_init_c_zero () {
+  c_zero(&local_portAngle);
+}
+
+void driver_portAngle_copy_c_int () {
+  copy_c_int(&local_portAngle,&global_portAngle);
+}
+
+void driver_portDistance_init_c_zero () {
+  c_zero(&local_portDistance);
+}
+
+void driver_portDistance_copy_c_int () {
+  copy_c_int(&local_portDistance,&global_portDistance);
+}
+
+void driver_searchTask_statefound_init_c_false () {
+  c_false(&searchTask_statefound);
+}
+
+void driver_actMotorSonar_driverSonarMotor () {
+  c_int_to_int(&global_portMotorSonar,&actMotorSonar);
+}
+
+void driver_search_driverGuardToSearch () {
+  c_switch_mode(&global_portMotorSonar);
+}
+
+void driver_guardTask_driverIntrusionStatus () {
+  c_bool_to_bool(&global_portIntrusion,&guardTask_intrusion);
+}
+
+void driver_searchTask_driverFoundStatus () {
+  c_bool_to_bool(&global_portFound,&searchTask_found);
+}
+
+void driver_guard_driverSearchToGuard () {
+  c_switch_mode(&global_portMotorSonar);
+}
+
+driver_type driver_table[MAXDRIVER] = {
+  { "portLight_c_get_light_sensor", driver_portLight_c_get_light_sensor, 0 },
+  { "portSonar_c_get_sonar_sensor", driver_portSonar_c_get_sonar_sensor, 0 },
+  { "actMotorSonar_c_set_motor_sonar_speed", driver_actMotorSonar_c_set_motor_sonar_speed, 0 },
+  { "portMotorSonar_init_c_zero", driver_portMotorSonar_init_c_zero, 0 },
+  { "portMotorSonar_copy_c_int", driver_portMotorSonar_copy_c_int, 0 },
+  { "portFound_init_c_false", driver_portFound_init_c_false, 2 },
+  { "portFound_copy_c_bool", driver_portFound_copy_c_bool, 2 },
+  { "portIntrusion_init_c_false", driver_portIntrusion_init_c_false, 1 },
+  { "portIntrusion_copy_c_bool", driver_portIntrusion_copy_c_bool, 1 },
+  { "portAngle_init_c_zero", driver_portAngle_init_c_zero, 0 },
+  { "portAngle_copy_c_int", driver_portAngle_copy_c_int, 0 },
+  { "portDistance_init_c_zero", driver_portDistance_init_c_zero, 0 },
+  { "portDistance_copy_c_int", driver_portDistance_copy_c_int, 0 },
+  { "searchTask_statefound_init_c_false", driver_searchTask_statefound_init_c_false, 2 },
+  { "actMotorSonar_driverSonarMotor", driver_actMotorSonar_driverSonarMotor, 0 },
+  { "search_driverGuardToSearch", driver_search_driverGuardToSearch, 0 },
+  { "guardTask_driverIntrusionStatus", driver_guardTask_driverIntrusionStatus, 1 },
+  { "searchTask_driverFoundStatus", driver_searchTask_driverFoundStatus, 2 },
+  { "guard_driverSearchToGuard", driver_guard_driverSearchToGuard, 0 }
+};
+
+
+unsigned condition_actMotorSonar_driverSonarMotor () {
+  return c_true();
+}
+
+unsigned condition_search_driverGuardToSearch () {
+  return c_ready_to_search(&global_portIntrusion);
+}
+
+unsigned condition_guardTask_driverIntrusionStatus () {
+  return c_true();
+}
+
+unsigned condition_searchTask_driverFoundStatus () {
+  return c_true();
+}
+
+unsigned condition_guard_driverSearchToGuard () {
+  return c_ready_to_guard(&global_portFound);
+}
+
+condition_type condition_table[MAXCONDITION] = {
+  { "actMotorSonar_driverSonarMotor", condition_actMotorSonar_driverSonarMotor, 0 },
+  { "search_driverGuardToSearch", condition_search_driverGuardToSearch, 0 },
+  { "guardTask_driverIntrusionStatus", condition_guardTask_driverIntrusionStatus, 0 },
+  { "searchTask_driverFoundStatus", condition_searchTask_driverFoundStatus, 0 },
+  { "guard_driverSearchToGuard", condition_guard_driverSearchToGuard, 0 }
 };
 

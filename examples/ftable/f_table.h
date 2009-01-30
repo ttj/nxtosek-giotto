@@ -3,14 +3,14 @@
 #ifndef _F_TABLE_
 #define _F_TABLE_
 
-#include "f_spec.h" 
+#include "f_spec.h"
 #include "f_code.h"
 
-#define MAXDRIVER    13  /* max number of drivers */
+#define MAXDRIVER    19  /* max number of drivers */
 #define MAXCONDITION 5  /* max number of conditions */
 #define MAXTASK      2  /* max number of tasks */
 #define MAXTRIGGER   1  /* max number of triggers */
 
-#define MAXPORT      10  /* max number of ports */
+#define MAXPORT      16  /* max number of ports */
 
 #endif
