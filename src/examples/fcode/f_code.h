@@ -122,6 +122,8 @@ void c_int_to_int(c_int *, c_int *);
 
 void c_bool_to_bool(c_bool *, c_bool *);
 
+void c_bool_to_bool_and_int_to_int(c_bool *, c_bool *, c_int *, c_int *);
+
 void giotto_timer_enable_code(e_machine_type, int);
 
 int giotto_timer_save_code(void);
@@ -129,9 +131,3 @@ int giotto_timer_save_code(void);
 unsigned giotto_timer_trigger_code(int, int);
 
 #endif
-
-
-
-
-
-

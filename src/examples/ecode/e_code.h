@@ -8,6 +8,6 @@
 #define NPROGRAM      191
 #define MAXPROGRAM    300
 #define MAXSCHEDULE   10
-#define MSEC_PER_UNIT 100
+#define MSEC_PER_UNIT 800
 
 #endif
