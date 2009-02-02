@@ -24,7 +24,7 @@ output
 	c_int 	portMotorSonar	:= c_zero;
 	c_bool	portFound	:= c_false;	//has an intruder been found (location)?
 	c_bool	portIntrusion	:= c_false;	//has an intruder been detected (past boundary)?
-	c_int	portAngle	:= c_zero;	//motor current angle (
+	c_int	portAngle	:= c_zero;	//motor current angle
 	c_int	portDistance	:= c_zero;	//distance to target
 	c_int	portLightO	:= c_zero;	//light
 

@@ -153,12 +153,12 @@ void driver_guardTask_driverIntrusionStatus () {
   c_bool_to_bool_and_int_to_int(&global_portIntrusion,&guardTask_intrusion,&portLight,&guardTask_light);
 }
 
-void driver_searchTask_driverFoundStatus () {
-  c_bool_to_bool(&global_portFound,&searchTask_found);
-}
-
 void driver_guard_driverSearchToGuard () {
   c_switch_mode(&global_portMotorSonar);
+}
+
+void driver_searchTask_driverFoundStatus () {
+  c_bool_to_bool(&global_portFound,&searchTask_found);
 }
 
 driver_type driver_table[MAXDRIVER] = {
@@ -181,8 +181,8 @@ driver_type driver_table[MAXDRIVER] = {
   { "actMotorSonar_driverSonarMotor", driver_actMotorSonar_driverSonarMotor, 0 },
   { "search_driverGuardToSearch", driver_search_driverGuardToSearch, 0 },
   { "guardTask_driverIntrusionStatus", driver_guardTask_driverIntrusionStatus, 1 },
-  { "searchTask_driverFoundStatus", driver_searchTask_driverFoundStatus, 2 },
-  { "guard_driverSearchToGuard", driver_guard_driverSearchToGuard, 0 }
+  { "guard_driverSearchToGuard", driver_guard_driverSearchToGuard, 0 },
+  { "searchTask_driverFoundStatus", driver_searchTask_driverFoundStatus, 2 }
 };
 
 
@@ -198,19 +198,19 @@ unsigned condition_guardTask_driverIntrusionStatus () {
   return c_true();
 }
 
-unsigned condition_searchTask_driverFoundStatus () {
-  return c_true();
-}
-
 unsigned condition_guard_driverSearchToGuard () {
   return c_ready_to_guard(&global_portFound);
+}
+
+unsigned condition_searchTask_driverFoundStatus () {
+  return c_true();
 }
 
 condition_type condition_table[MAXCONDITION] = {
   { "actMotorSonar_driverSonarMotor", condition_actMotorSonar_driverSonarMotor, 0 },
   { "search_driverGuardToSearch", condition_search_driverGuardToSearch, 0 },
   { "guardTask_driverIntrusionStatus", condition_guardTask_driverIntrusionStatus, 0 },
-  { "searchTask_driverFoundStatus", condition_searchTask_driverFoundStatus, 0 },
-  { "guard_driverSearchToGuard", condition_guard_driverSearchToGuard, 0 }
+  { "guard_driverSearchToGuard", condition_guard_driverSearchToGuard, 0 },
+  { "searchTask_driverFoundStatus", condition_searchTask_driverFoundStatus, 0 }
 };
 
