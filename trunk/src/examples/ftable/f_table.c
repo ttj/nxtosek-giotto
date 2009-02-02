@@ -51,7 +51,7 @@ port_type port_table[MAXPORT] = {
 
 #if defined(OSEK) || defined(NXTOSEK)
 TASK(task_guardTask) {
-#else
+#elif defined(PTHREADS)
 void task_guardTask () {
 #endif
   c_guard_task(&guardTask_intrusion,&local_portIntrusion,&guardTask_light,&local_portLightO);
@@ -62,7 +62,7 @@ void task_guardTask () {
 
 #if defined(OSEK) || defined(NXTOSEK)
 TASK(task_searchTask) {
-#else
+#elif defined(PTHREADS)
 void task_searchTask () {
 #endif
   c_search_task(&searchTask_found,&searchTask_statefound,&local_portFound);
@@ -150,8 +150,7 @@ void driver_search_driverGuardToSearch () {
 }
 
 void driver_guardTask_driverIntrusionStatus () {
-  c_bool_to_bool(&global_portIntrusion,&guardTask_intrusion);
-  c_int_to_int(&portLight,&guardTask_light);
+  c_bool_to_bool_and_int_to_int(&global_portIntrusion,&guardTask_intrusion,&portLight,&guardTask_light);
 }
 
 void driver_searchTask_driverFoundStatus () {
@@ -176,7 +175,7 @@ driver_type driver_table[MAXDRIVER] = {
   { "portAngle_copy_c_int", driver_portAngle_copy_c_int, 0 },
   { "portDistance_init_c_zero", driver_portDistance_init_c_zero, 0 },
   { "portDistance_copy_c_int", driver_portDistance_copy_c_int, 0 },
-  { "portLightO_init_c_zerol", driver_portLightO_init_c_zero, 1 },
+  { "portLightO_init_c_zero", driver_portLightO_init_c_zero, 1 },
   { "portLightO_copy_c_int", driver_portLightO_copy_c_int, 1 },
   { "searchTask_statefound_init_c_false", driver_searchTask_statefound_init_c_false, 2 },
   { "actMotorSonar_driverSonarMotor", driver_actMotorSonar_driverSonarMotor, 0 },

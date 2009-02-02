@@ -8,7 +8,7 @@ instruction_type program[MAXPROGRAM] = {
 /* 2 */  CALL(7)          /* Call initialization driver: driver_portIntrusion_init_c_false */,
 /* 3 */  CALL(9)          /* Call initialization driver: driver_portAngle_init_c_zero */,
 /* 4 */  CALL(11)          /* Call initialization driver: driver_portDistance_init_c_zero */,
-/* 5 */  CALL(13)          /* Call initialization driver: driver_portLightO_init_c_zerol */,
+/* 5 */  CALL(13)          /* Call initialization driver: driver_portLightO_init_c_zero */,
 /* 6 */  CALL(15)          /* Call initialization driver: driver_searchTask_statefound_init_c_false */,
 /* 7 */  JUMP(8)          /* Jump to start mode: guard */,
 /* 8 */  CALL(8)          /* Call output port copy driver: driver_portIntrusion_copy_c_bool for task: task_guardTask */,

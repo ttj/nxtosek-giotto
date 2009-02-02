@@ -97,7 +97,7 @@ start guard {
 		exitfreq 2 do search(driverGuardToSearch);
 
 		taskfreq 10 do guardTask(driverIntrusionStatus);
-		taskfreq 1 do searchTask(driverFoundStatus);
+//		taskfreq 1 do searchTask(driverFoundStatus);
 	}
 
 	mode search(portMotorSonar) period 8000 {
@@ -105,7 +105,7 @@ start guard {
 
 		exitfreq 1 do guard(driverSearchToGuard);
 
-		taskfreq 10 do guardTask(driverIntrusionStatus);
+//		taskfreq 10 do guardTask(driverIntrusionStatus);
 		taskfreq 1 do searchTask(driverFoundStatus);
 	}
 }
