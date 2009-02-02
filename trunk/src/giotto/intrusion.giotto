@@ -26,13 +26,14 @@ output
 	c_bool	portIntrusion	:= c_false;	//has an intruder been detected (past boundary)?
 	c_int	portAngle	:= c_zero;	//motor current angle (
 	c_int	portDistance	:= c_zero;	//distance to target
+	c_int	portLightO	:= c_zero;	//light
 
 /////////////////////////////////////////////////////////////////////////
 ////                         tasks                                   ////
 
-task guardTask(c_bool intrusion)
-	output (portIntrusion) state () {
-		schedule c_guard_task(intrusion, portIntrusion)
+task guardTask(c_bool intrusion, c_int light)
+	output (portIntrusion, portLightO) state () {
+		schedule c_guard_task(intrusion, portIntrusion, light, portLightO)
 }
 
 task searchTask(c_bool found)
@@ -50,10 +51,10 @@ driver driverSonarMotor(portMotorSonar)
 /////////////////////////////////////////////////////////////////////////
 ////                    input drivers                                ////
 
-driver driverIntrusionStatus (portIntrusion)
-	output (c_bool intrusionValue) {
+driver driverIntrusionStatus (portIntrusion, portLight)
+	output (c_bool intrusionValue, c_int lightValue) {
 	if c_true() then
-		c_bool_to_bool(portIntrusion, intrusionValue)
+		c_bool_to_bool_and_int_to_int(portIntrusion, intrusionValue, portLight, lightValue)
 }
 
 driver driverFoundStatus (portFound)
