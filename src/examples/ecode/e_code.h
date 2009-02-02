@@ -5,7 +5,7 @@
 
 #include "e_spec.h"
 
-#define NPROGRAM      191
+#define NPROGRAM      109
 #define MAXPROGRAM    300
 #define MAXSCHEDULE   10
 #define MSEC_PER_UNIT 800
