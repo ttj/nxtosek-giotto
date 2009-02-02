@@ -56,13 +56,13 @@ typedef char c_string[MAXDISPLAY];
 
 
 
-void c_guard_task(c_bool intrusion, c_bool portIntrusion);
+void c_guard_task(c_bool *intrusion, c_bool *portIntrusion, c_int *light, c_int *portLight);
 
-void c_search_task(c_bool found, c_bool stateFound, c_bool portFound);
+void c_search_task(c_bool *found, c_bool *stateFound, c_bool *portFound);
 
-void c_get_light_sensor(c_int* val);
+void c_get_light_sensor(c_int*);
 
-void c_get_sonar_sensor(c_int* val);
+void c_get_sonar_sensor(c_int*);
 
 
 
@@ -120,7 +120,7 @@ void c_switch_undeclared_mode();
 
 void c_int_to_int(c_int *, c_int *);
 
-void c_bool_to_bool(c_int *, c_int *);
+void c_bool_to_bool(c_bool *, c_bool *);
 
 void giotto_timer_enable_code(e_machine_type, int);
 

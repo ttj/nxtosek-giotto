@@ -33,6 +33,7 @@
 #include "f_code.h"
 #include <string.h>
 
+#if !defined(NXTOSEK)
 void c_connect_sensor_to_return_key(c_bool *sensor) {
 	//*sensor = os_key_event();
 	*sensor = ecrobot_get_light_sensor(NXT_PORT_S1);
@@ -72,33 +73,17 @@ void c_connect_actuator_to_display(c_string *string) {
 	//  os_print_message(text_message);
 	os_print_message("actuator value");
 }
+#endif // !defined(NXTOSEK)
 
 void c_empty_string(c_string *string) {
 	**string = 0;
-}
-
-void copy_c_string(c_string *string_source, c_string *string_dest) {
-	char *s = (char *) *string_source, *d = (char *) string_dest;
-
-	while (*s) {
-		*d++ = *s++;
-	}
-
-	*d = 0;
 }
 
 void c_one(c_int *integer) {
 	*integer=1;
 }
 
-void copy_c_int(c_int *integer_source, c_int *integer_dest) {
-	*integer_dest=*integer_source;
-}
-
-void copy_c_bool(c_bool *bool_source, c_bool *bool_dest) {
-	*bool_dest=*bool_source;
-}
-
+#if !defined(NXTOSEK)
 void c_control_task(c_int *average, c_string *display) {
 	unsigned i;
 	int dummy = 7;
@@ -129,43 +114,57 @@ void c_navigation_task(c_int *in, c_int *state, c_int *out) {
 	*out = (*in+*state)/2;
 
 	// To trigger deadline violation uncomment for loop
-	for(i=0;i<170000;i++) {
-		dummy = (dummy * dummy) % 100;
-	}
+//	for(i=0;i<170000;i++) {
+//		dummy = (dummy * dummy) % 100;
+//	}
 
 //	os_print_message("\t\tNavigation task ends");
 }
 
+#endif // !defined(NXTOSEK)
 
+void c_guard_task(c_bool *intrusion, c_bool *portIntrusion, c_int *light, c_int *portLight) {
+	//simple detection to check if an intruder is coming in
+	if (*light < 0x150) {
+		os_print_message("intrusion detected!");
+		*intrusion = c_true();
+		os_print_hex((int)*light);
+		os_print_hex((int)*portLight);
+	}
+	else {
+		*intrusion = c_false();
+		os_print_message("guarding" );
+	}
+	os_print_hex((int)*intrusion);
+	os_print_hex((int)*portIntrusion);
 
-
-
-
-void c_guard_task(c_bool intrusion, c_bool portIntrusion) {
-	//check if an intruder is coming in
-	os_print_message("guarding" );
 	return;
 }
 
-void c_search_task(c_bool found, c_bool stateFound, c_bool portFound) {
+void c_search_task(c_bool *found, c_bool *stateFound, c_bool *portFound) {
 	//find the intruder
 	os_print_message("searching");
+	os_print_hex((int)*found);
+	os_print_hex((int)*stateFound);
+	os_print_hex((int)*portFound);
 	return;
 }
 
 void c_get_light_sensor(c_int* val) {
-	val=ecrobot_get_light_sensor(NXT_PORT_S1); //todo: make dynamic
-	os_print_hex(val);
+	*val=ecrobot_get_light_sensor(NXT_PORT_S1); //todo: make dynamic
+	os_print_message("get_light_sensor");
+	os_print_hex((int)*val);
 }
 
 void c_get_sonar_sensor(c_int* val) {
-	val=ecrobot_get_sonar_sensor(NXT_PORT_S4); //todo: make dynamic
-	os_print_hex(val);
+	*val=ecrobot_get_sonar_sensor(NXT_PORT_S4); //todo: make dynamic
+	os_print_message("get_sonar_sensor");
+	os_print_hex((int)*val);
 }
 
 
 void c_set_motor_sonar_speed(c_int* speed) {
-	nxt_motor_set_speed(NXT_PORT_A, speed, 1);
+	nxt_motor_set_speed(NXT_PORT_A, *speed, 1);
 }
 
 
@@ -200,12 +199,35 @@ void c_switch_undeclared_mode() {
 	os_print_message("\t\tSwitch to dynamic mode!");
 }
 
+void copy_c_string(c_string *string_source, c_string *string_dest) {
+	char *s = (char *) *string_source, *d = (char *) string_dest;
+
+	while (*s) {
+		*d++ = *s++;
+	}
+
+	*d = 0;
+}
+
+void copy_c_int(c_int *integer_source, c_int *integer_dest) {
+	*integer_dest=*integer_source;
+}
+
 void c_int_to_int(c_int *integer_source, c_int *integer_dest) {
 	copy_c_int(integer_source, integer_dest);
 }
 
-void c_bool_to_bool(c_int *bool_source, c_int *bool_dest) {
+void copy_c_bool(c_bool *bool_source, c_bool *bool_dest) {
+	*bool_dest=*bool_source;
+}
+
+void c_bool_to_bool(c_bool *bool_source, c_bool *bool_dest) {
 	copy_c_bool(bool_source, bool_dest);
+}
+
+void c_bool_to_bool_and_int_to_int(c_bool *bool_source, c_bool *bool_dest, c_int *int_source, c_int *int_dest) {
+	c_bool_to_bool(bool_source, bool_dest);
+	c_int_to_int(int_source, int_dest);
 }
 
 unsigned c_ready_to_search(c_bool *intrusion) {

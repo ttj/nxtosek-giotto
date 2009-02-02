@@ -19,7 +19,10 @@ c_int global_portAngle;
 c_int local_portAngle;
 c_int global_portDistance;
 c_int local_portDistance;
+c_int global_portLightO;
+c_int local_portLightO;
 c_bool guardTask_intrusion;
+c_int guardTask_light;
 c_bool searchTask_found;
 c_bool searchTask_statefound;
 
@@ -37,7 +40,10 @@ port_type port_table[MAXPORT] = {
   { "local_portAngle", &local_portAngle, sizeof(c_int) },
   { "global_portDistance", &global_portDistance, sizeof(c_int) },
   { "local_portDistance", &local_portDistance, sizeof(c_int) },
+  { "global_portLightO", &global_portLightO, sizeof(c_int) },
+  { "local_portLightO", &local_portLightO, sizeof(c_int) },
   { "guardTask_intrusion", &guardTask_intrusion, sizeof(c_bool) },
+  { "guardTask_light", &guardTask_light, sizeof(c_int) },
   { "searchTask_found", &searchTask_found, sizeof(c_bool) },
   { "searchTask_statefound", &searchTask_statefound, sizeof(c_bool) }
 };
@@ -45,10 +51,10 @@ port_type port_table[MAXPORT] = {
 
 #if defined(OSEK) || defined(NXTOSEK)
 TASK(task_guardTask) {
-#elif defined(PTHREADS)
+#else
 void task_guardTask () {
 #endif
-  c_guard_task(&guardTask_intrusion,&local_portIntrusion);
+  c_guard_task(&guardTask_intrusion,&local_portIntrusion,&guardTask_light,&local_portLightO);
 #if defined(OSEK) || defined(NXTOSEK)
   e_machine_go();
 #endif
@@ -56,7 +62,7 @@ void task_guardTask () {
 
 #if defined(OSEK) || defined(NXTOSEK)
 TASK(task_searchTask) {
-#elif defined(PTHREADS)
+#else
 void task_searchTask () {
 #endif
   c_search_task(&searchTask_found,&searchTask_statefound,&local_portFound);
@@ -123,6 +129,14 @@ void driver_portDistance_copy_c_int () {
   copy_c_int(&local_portDistance,&global_portDistance);
 }
 
+void driver_portLightO_init_c_zero () {
+  c_zero(&local_portLightO);
+}
+
+void driver_portLightO_copy_c_int () {
+  copy_c_int(&local_portLightO,&global_portLightO);
+}
+
 void driver_searchTask_statefound_init_c_false () {
   c_false(&searchTask_statefound);
 }
@@ -137,6 +151,7 @@ void driver_search_driverGuardToSearch () {
 
 void driver_guardTask_driverIntrusionStatus () {
   c_bool_to_bool(&global_portIntrusion,&guardTask_intrusion);
+  c_int_to_int(&portLight,&guardTask_light);
 }
 
 void driver_searchTask_driverFoundStatus () {
@@ -161,6 +176,8 @@ driver_type driver_table[MAXDRIVER] = {
   { "portAngle_copy_c_int", driver_portAngle_copy_c_int, 0 },
   { "portDistance_init_c_zero", driver_portDistance_init_c_zero, 0 },
   { "portDistance_copy_c_int", driver_portDistance_copy_c_int, 0 },
+  { "portLightO_init_c_zerol", driver_portLightO_init_c_zero, 1 },
+  { "portLightO_copy_c_int", driver_portLightO_copy_c_int, 1 },
   { "searchTask_statefound_init_c_false", driver_searchTask_statefound_init_c_false, 2 },
   { "actMotorSonar_driverSonarMotor", driver_actMotorSonar_driverSonarMotor, 0 },
   { "search_driverGuardToSearch", driver_search_driverGuardToSearch, 0 },
