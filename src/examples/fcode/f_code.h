@@ -56,9 +56,9 @@ typedef char c_string[MAXDISPLAY];
 
 
 
-void c_guard_task(c_bool *intrusion, c_bool *portIntrusion, c_int *light, c_int *portLight);
+void c_guard_task(c_bool *intrusion, c_bool *portIntrusion, c_int *light, c_int *portLight, c_bool *stateIntrusion);
 
-void c_search_task(c_bool *found, c_bool *stateFound, c_bool *portFound);
+void c_search_task(c_bool *found, c_bool *stateFound, c_bool *portFound, c_int *sonar, c_int *portSonar);
 
 void c_get_light_sensor(c_int*);
 
@@ -110,9 +110,9 @@ void c_string_to_string(c_string *, c_string *);
 
 unsigned c_key_pressed(c_bool *);
 
-unsigned c_ready_to_guard(c_bool *found);
+unsigned c_ready_to_guard(c_bool *);
 
-unsigned c_ready_to_search(c_bool *found);
+unsigned c_ready_to_search(c_bool *);
 
 void c_switch_mode(c_int *);
 

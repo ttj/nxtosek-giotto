@@ -27,18 +27,19 @@ output
 	c_int	portAngle	:= c_zero;	//motor current angle
 	c_int	portDistance	:= c_zero;	//distance to target
 	c_int	portLightO	:= c_zero;	//light
+	c_int	portSonarO	:= c_zero;	//sonar
 
 /////////////////////////////////////////////////////////////////////////
 ////                         tasks                                   ////
 
 task guardTask(c_bool intrusion, c_int light)
-	output (portIntrusion, portLightO) state () {
-		schedule c_guard_task(intrusion, portIntrusion, light, portLightO)
+	output (portIntrusion, portLightO) state (c_bool stateintrusion := c_false) {
+		schedule c_guard_task(intrusion, portIntrusion, light, portLightO, stateintrusion)
 }
 
-task searchTask(c_bool found)
-	output (portFound) state (c_bool statefound := c_false) {
-		schedule c_search_task(found, statefound, portFound)
+task searchTask(c_bool found, c_int sonar)
+	output (portFound, portSonarO) state (c_bool statefound := c_false) {
+		schedule c_search_task(found, statefound, portFound, sonar, portSonarO)
 }
 
 /////////////////////////////////////////////////////////////////////////
@@ -54,26 +55,26 @@ driver driverSonarMotor(portMotorSonar)
 driver driverIntrusionStatus (portIntrusion, portLight)
 	output (c_bool intrusionValue, c_int lightValue) {
 	if c_true() then
-		c_bool_to_bool_and_int_to_int(portIntrusion, intrusionValue, portLight, lightValue)
+		c_bool_to_bool_and_int_to_int(intrusionValue, portIntrusion, portLight, lightValue)
 }
 
-driver driverFoundStatus (portFound)
-	output (c_bool foundValue) {
+driver driverSearchStatus (portFound, portSonar)
+	output (c_bool foundValue, c_int sonarValue) {
 	if c_true() then
-		c_bool_to_bool(portFound, foundValue)
+		c_bool_to_bool_and_int_to_int(portFound, foundValue, portSonar, sonarValue)
 }
 
-driver driverLightStatus (portLight)
-	output (c_int lightValue) {
-	if c_true() then
-		c_int_to_int(portLight, lightValue)
-}
+//driver driverLightStatus (portLight)
+//	output (c_int lightValue) {
+//	if c_true() then
+//		c_int_to_int(portLight, lightValue)
+//}
 
-driver driverSonarStatus (portAngle, portDistance)
-       output (c_int angleValue, c_int distanceValue) {
-    if c_true() then
-       c_int_to_int(portAngle, portDistance, angleValue, distanceValue)
-}
+//driver driverSonarStatus (portAngle, portDistance)
+//       output (c_int angleValue, c_int distanceValue) {
+//    if c_true() then
+//       c_int_to_int(portAngle, portDistance, angleValue, distanceValue)
+//}
 
 /////////////////////////////////////////////////////////////////////////
 ////                    mode switch drivers                          ////
@@ -91,22 +92,19 @@ driver driverSearchToGuard(portFound)
 
 start guard {
 
-	mode guard(portMotorSonar) period 8000 {
+	mode guard(portMotorSonar) period 1000 {
 		actfreq 1 do actMotorSonar(driverSonarMotor);
 
-		exitfreq 2 do search(driverGuardToSearch);
+		exitfreq 1 do search(driverGuardToSearch);
 
 		taskfreq 10 do guardTask(driverIntrusionStatus);
-//		taskfreq 1 do searchTask(driverFoundStatus);
 	}
 
-	mode search(portMotorSonar) period 8000 {
+	mode search(portMotorSonar) period 1000 {
 		actfreq 1 do actMotorSonar(driverSonarMotor);
 
 		exitfreq 1 do guard(driverSearchToGuard);
 
-//		taskfreq 10 do guardTask(driverIntrusionStatus);
-		taskfreq 1 do searchTask(driverFoundStatus);
+		taskfreq 1 do searchTask(driverSearchStatus);
 	}
 }
-

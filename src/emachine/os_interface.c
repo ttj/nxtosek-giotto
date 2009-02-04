@@ -161,7 +161,7 @@ void os_print_hex(unsigned int message) {
       pos_y=0;
   }
   display_goto_xy(pos_x, pos_y);
-  display_hex(message, 12); //show 12 bits
+  display_hex(message, MAX_NUM_OF_CHAR-1); //show max x-axis bits
   display_update();
   pos_y++;
 
