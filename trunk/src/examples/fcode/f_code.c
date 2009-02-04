@@ -33,6 +33,9 @@
 #include "f_code.h"
 #include <string.h>
 
+static int count_guard = 0;
+static int count_search = 0;
+
 #if !defined(NXTOSEK)
 void c_connect_sensor_to_return_key(c_bool *sensor) {
 	//*sensor = os_key_event();
@@ -123,30 +126,91 @@ void c_navigation_task(c_int *in, c_int *state, c_int *out) {
 
 #endif // !defined(NXTOSEK)
 
-void c_guard_task(c_bool *intrusion, c_bool *portIntrusion, c_int *light, c_int *portLight) {
+void c_guard_task(c_bool *intrusion, c_bool *portIntrusion, c_int *light, c_int *portLight, c_bool *stateIntrusion) {
+	count_guard++;
+
 	//simple detection to check if an intruder is coming in
-	if (*light < 0x150) {
+	if (*light > 0x1F0) {
+		*intrusion = c_false();
+		os_print_message("guarding" );
+	}
+	else {
 		os_print_message("intrusion detected!");
 		*intrusion = c_true();
 		os_print_hex((int)*light);
 		os_print_hex((int)*portLight);
 	}
-	else {
-		*intrusion = c_false();
-		os_print_message("guarding" );
-	}
+
+	c_bool_to_bool(intrusion, portIntrusion);
+
+	os_print_hex(count_guard);
 	os_print_hex((int)*intrusion);
 	os_print_hex((int)*portIntrusion);
 
 	return;
 }
 
-void c_search_task(c_bool *found, c_bool *stateFound, c_bool *portFound) {
+void c_search_task(c_bool *found, c_bool *stateFound, c_bool *portFound, c_int *sonar, c_int *portSonar) {
+	count_search++;
+
 	//find the intruder
 	os_print_message("searching");
-	os_print_hex((int)*found);
-	os_print_hex((int)*stateFound);
-	os_print_hex((int)*portFound);
+	os_print_hex(count_search);
+	os_print_hex(*sonar);
+//	os_print_hex((int)*found);
+//	os_print_hex((int)*stateFound);
+//	os_print_hex((int)*portFound);
+
+	//sonar produces values 0x00 to 0xFF (0-255cm) which is distance from
+	//object reflecting sound back in cm +/- 3cm error
+	//given a square guard/search area of 2.5ft a side (hence sqrt(12.5)ft diagonal),
+	//the range of distances is: 76.2cm to 107.8cm
+	//adding the tolerance of +/- 3cm, we have the following logic:
+	//    if *sonar < 73cm (0x49), then definitely we have an object found
+	//    elif *sonar > 111cm (0x6F), then we definitely do not have an object
+	//    elif *sonar >= 73cm && *sonar <= 111cm, then possibly we have an object found
+	//    else error
+	//
+	//note that the < 73cm allows us to check in a RADIUS of 73cm around the search point,
+	//which gives us coverage over the quarter of a circle traced by this radius within
+	//the 73cm a side square
+	//
+	//so, we need a way to determine when the sonar value is between 73 and 111 if we
+	//have found the object: this could be accomplished with multiple sensors
+
+	//definitely found
+	if (*sonar < 0x49) {
+		*portFound = c_true();
+	}
+	//definitely not found
+	else if (*sonar > 0x6F) {
+		*portFound = c_false();
+	}
+	//possibly found, for now let's say it is
+	else if (*sonar >= 0x49 && *sonar <= 0x6F) {
+		*portFound = c_true(); //todo: needs to be fixed
+	}
+	//some error, assume not found
+	else {
+		*portFound = c_false();
+	}
+
+	//not done: repeatedly rotate 90 degrees cw then ccw to search area
+	if (*portFound == c_false()) {
+		if ((count_search % 2) == 0) { //todo: change to degrees counting (there is an encoder available)
+			nxt_motor_set_speed(NXT_PORT_A, 100, 1);
+		}
+		else {
+			nxt_motor_set_speed(NXT_PORT_A, -100, 1);
+		}
+	}
+
+	//todo: once we have an angle calculation from the encoder, we can use this with the
+	//      distance-to-target given by the sonar, so that we can approximate the area
+	//      the intruder is in
+	//equations:
+	//x=distance*cos(angle)
+	//y=distance*sin(angle)
 	return;
 }
 
@@ -231,11 +295,25 @@ void c_bool_to_bool_and_int_to_int(c_bool *bool_source, c_bool *bool_dest, c_int
 }
 
 unsigned c_ready_to_search(c_bool *intrusion) {
-	return *intrusion;
+	os_print_message("rdy_search");
+	os_print_hex(*intrusion);
+	if (*intrusion == c_true()) {
+		return c_true();
+	}
+	else {
+		return c_false();
+	}
 }
 
 unsigned c_ready_to_guard(c_bool *found) {
-	return *found;
+	os_print_message("rdy_guard");
+	os_print_hex(*found);
+	if (*found == c_true()) {
+		return c_true();
+	}
+	else {
+		return c_false();
+	}
 }
 
 void giotto_timer_enable_code(e_machine_type e_machine_func, int relative_time) {

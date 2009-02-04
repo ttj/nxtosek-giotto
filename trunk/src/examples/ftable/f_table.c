@@ -21,9 +21,13 @@ c_int global_portDistance;
 c_int local_portDistance;
 c_int global_portLightO;
 c_int local_portLightO;
+c_int global_portSonarO;
+c_int local_portSonarO;
 c_bool guardTask_intrusion;
 c_int guardTask_light;
+c_bool guardTask_stateintrusion;
 c_bool searchTask_found;
+c_int searchTask_sonar;
 c_bool searchTask_statefound;
 
 port_type port_table[MAXPORT] = {
@@ -42,9 +46,13 @@ port_type port_table[MAXPORT] = {
   { "local_portDistance", &local_portDistance, sizeof(c_int) },
   { "global_portLightO", &global_portLightO, sizeof(c_int) },
   { "local_portLightO", &local_portLightO, sizeof(c_int) },
+  { "global_portSonarO", &global_portSonarO, sizeof(c_int) },
+  { "local_portSonarO", &local_portSonarO, sizeof(c_int) },
   { "guardTask_intrusion", &guardTask_intrusion, sizeof(c_bool) },
   { "guardTask_light", &guardTask_light, sizeof(c_int) },
+  { "guardTask_stateintrusion", &guardTask_stateintrusion, sizeof(c_bool) },
   { "searchTask_found", &searchTask_found, sizeof(c_bool) },
+  { "searchTask_sonar", &searchTask_sonar, sizeof(c_int) },
   { "searchTask_statefound", &searchTask_statefound, sizeof(c_bool) }
 };
 
@@ -54,7 +62,7 @@ TASK(task_guardTask) {
 #elif defined(PTHREADS)
 void task_guardTask () {
 #endif
-  c_guard_task(&guardTask_intrusion,&local_portIntrusion,&guardTask_light,&local_portLightO);
+  c_guard_task(&guardTask_intrusion,&local_portIntrusion,&guardTask_light,&local_portLightO,&guardTask_stateintrusion);
 #if defined(OSEK) || defined(NXTOSEK)
   e_machine_go();
 #endif
@@ -65,7 +73,7 @@ TASK(task_searchTask) {
 #elif defined(PTHREADS)
 void task_searchTask () {
 #endif
-  c_search_task(&searchTask_found,&searchTask_statefound,&local_portFound);
+  c_search_task(&searchTask_found,&searchTask_statefound,&local_portFound,&searchTask_sonar,&local_portSonarO);
 #if defined(OSEK) || defined(NXTOSEK)
   e_machine_go();
 #endif
@@ -137,6 +145,18 @@ void driver_portLightO_copy_c_int () {
   copy_c_int(&local_portLightO,&global_portLightO);
 }
 
+void driver_portSonarO_init_c_zero () {
+  c_zero(&local_portSonarO);
+}
+
+void driver_portSonarO_copy_c_int () {
+  copy_c_int(&local_portSonarO,&global_portSonarO);
+}
+
+void driver_guardTask_stateintrusion_init_c_false () {
+  c_false(&guardTask_stateintrusion);
+}
+
 void driver_searchTask_statefound_init_c_false () {
   c_false(&searchTask_statefound);
 }
@@ -150,15 +170,15 @@ void driver_search_driverGuardToSearch () {
 }
 
 void driver_guardTask_driverIntrusionStatus () {
-  c_bool_to_bool_and_int_to_int(&global_portIntrusion,&guardTask_intrusion,&portLight,&guardTask_light);
+  c_bool_to_bool_and_int_to_int(&guardTask_intrusion,&global_portIntrusion,&portLight,&guardTask_light);
 }
 
 void driver_guard_driverSearchToGuard () {
   c_switch_mode(&global_portMotorSonar);
 }
 
-void driver_searchTask_driverFoundStatus () {
-  c_bool_to_bool(&global_portFound,&searchTask_found);
+void driver_searchTask_driverSearchStatus () {
+  c_bool_to_bool_and_int_to_int(&global_portFound,&searchTask_found,&portSonar,&searchTask_sonar);
 }
 
 driver_type driver_table[MAXDRIVER] = {
@@ -177,12 +197,15 @@ driver_type driver_table[MAXDRIVER] = {
   { "portDistance_copy_c_int", driver_portDistance_copy_c_int, 0 },
   { "portLightO_init_c_zero", driver_portLightO_init_c_zero, 1 },
   { "portLightO_copy_c_int", driver_portLightO_copy_c_int, 1 },
+  { "portSonarO_init_c_zero", driver_portSonarO_init_c_zero, 2 },
+  { "portSonarO_copy_c_int", driver_portSonarO_copy_c_int, 2 },
+  { "guardTask_stateintrusion_init_c_false", driver_guardTask_stateintrusion_init_c_false, 1 },
   { "searchTask_statefound_init_c_false", driver_searchTask_statefound_init_c_false, 2 },
   { "actMotorSonar_driverSonarMotor", driver_actMotorSonar_driverSonarMotor, 0 },
   { "search_driverGuardToSearch", driver_search_driverGuardToSearch, 0 },
   { "guardTask_driverIntrusionStatus", driver_guardTask_driverIntrusionStatus, 1 },
   { "guard_driverSearchToGuard", driver_guard_driverSearchToGuard, 0 },
-  { "searchTask_driverFoundStatus", driver_searchTask_driverFoundStatus, 2 }
+  { "searchTask_driverSearchStatus", driver_searchTask_driverSearchStatus, 2 }
 };
 
 
@@ -202,7 +225,7 @@ unsigned condition_guard_driverSearchToGuard () {
   return c_ready_to_guard(&global_portFound);
 }
 
-unsigned condition_searchTask_driverFoundStatus () {
+unsigned condition_searchTask_driverSearchStatus () {
   return c_true();
 }
 
@@ -211,6 +234,6 @@ condition_type condition_table[MAXCONDITION] = {
   { "search_driverGuardToSearch", condition_search_driverGuardToSearch, 0 },
   { "guardTask_driverIntrusionStatus", condition_guardTask_driverIntrusionStatus, 0 },
   { "guard_driverSearchToGuard", condition_guard_driverSearchToGuard, 0 },
-  { "searchTask_driverFoundStatus", condition_searchTask_driverFoundStatus, 0 }
+  { "searchTask_driverSearchStatus", condition_searchTask_driverSearchStatus, 0 }
 };
 
