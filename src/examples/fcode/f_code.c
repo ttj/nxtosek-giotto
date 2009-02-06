@@ -130,7 +130,7 @@ void c_guard_task(c_bool *intrusion, c_bool *portIntrusion, c_int *light, c_int 
 	count_guard++;
 
 	//simple detection to check if an intruder is coming in
-	if (*light > 0x1F0) {
+	if (*light < 0x1F0) {
 		*intrusion = c_false();
 		os_print_message("guarding" );
 	}
@@ -198,7 +198,7 @@ void c_search_task(c_bool *found, c_bool *stateFound, c_bool *portFound, c_int *
 	//not done: repeatedly rotate 90 degrees cw then ccw to search area
 	if (*portFound == c_false()) {
 		if ((count_search % 2) == 0) { //todo: change to degrees counting (there is an encoder available)
-			nxt_motor_set_speed(NXT_PORT_A, 100, 1);
+			nxt_motor_set_speed(NXT_PORT_A, 100, 1); //todo: change to proper giotto actuator driver
 		}
 		else {
 			nxt_motor_set_speed(NXT_PORT_A, -100, 1);
